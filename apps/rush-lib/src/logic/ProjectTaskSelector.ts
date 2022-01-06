@@ -97,24 +97,26 @@ export class ProjectTaskSelector {
       phase.name,
       customParameterValues
     );
-    if (commandToRun === undefined && !phase.ignoreMissingScript) {
-      throw new Error(
-        `The project [${project.packageName}] does not define a '${phase.name}' command in the 'scripts' section of its package.json`
+    if (commandToRun === undefined) {
+      if (!phase.ignoreMissingScript) {
+        throw new Error(
+          `The project [${project.packageName}] does not define a '${phase.name}' command in the 'scripts' section of its package.json`
+        );
+      }
+    } else {
+      taskCollection.addTask(
+        new ProjectTaskRunner({
+          rushProject: project,
+          taskName,
+          rushConfiguration: this._options.rushConfiguration,
+          buildCacheConfiguration: this._options.buildCacheConfiguration,
+          commandToRun: commandToRun || '',
+          isIncrementalBuildAllowed: this._options.isIncrementalBuildAllowed,
+          projectChangeAnalyzer: this._projectChangeAnalyzer,
+          phase
+        })
       );
     }
-
-    taskCollection.addTask(
-      new ProjectTaskRunner({
-        rushProject: project,
-        taskName,
-        rushConfiguration: this._options.rushConfiguration,
-        buildCacheConfiguration: this._options.buildCacheConfiguration,
-        commandToRun: commandToRun || '',
-        isIncrementalBuildAllowed: this._options.isIncrementalBuildAllowed,
-        projectChangeAnalyzer: this._projectChangeAnalyzer,
-        phase
-      })
-    );
 
     const dependencyTasks: Set<string> = new Set();
     if (phase.dependencies?.self) {
