@@ -2,12 +2,12 @@
 // See LICENSE in the project root for license information.
 
 import * as path from 'path';
-import * as resolve from 'resolve';
 
 import { IApiDocumenterPluginManifest, IFeatureDefinition } from './IApiDocumenterPluginManifest';
 import { MarkdownDocumenterFeature, MarkdownDocumenterFeatureContext } from './MarkdownDocumenterFeature';
 import { PluginFeatureInitialization } from './PluginFeature';
 import { DocumenterConfig } from '../documenters/DocumenterConfig';
+import { Import } from '@rushstack/node-core-library';
 
 interface ILoadedPlugin {
   packageName: string;
@@ -25,8 +25,9 @@ export class PluginLoader {
     for (const configPlugin of documenterConfig.configFile.plugins || []) {
       try {
         // Look for the package name in the same place as the config file
-        const resolvedEntryPointPath: string = resolve.sync(configPlugin.packageName, {
-          basedir: configFileFolder
+        const resolvedEntryPointPath: string = Import.resolveModule({
+          modulePath: configPlugin.packageName,
+          baseFolderPath: configFileFolder
         });
 
         // Load the package

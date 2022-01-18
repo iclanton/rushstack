@@ -23,8 +23,7 @@
     "@rushstack/node-core-library": "workspace:*",
     "@rushstack/ts-command-line": "workspace:*",
     "colors": "~1.2.1",
-    "js-yaml": "~3.13.1",
-    "resolve": "~1.17.0"
+    "js-yaml": "~3.13.1"
   },
   "devDependencies": {
     "@rushstack/eslint-config": "workspace:*",
@@ -32,7 +31,6 @@
     "@rushstack/heft-node-rig": "workspace:*",
     "@types/heft-jest": "1.0.1",
     "@types/js-yaml": "3.12.1",
-    "@types/node": "12.20.24",
-    "@types/resolve": "1.17.1"
+    "@types/node": "12.20.24"
   }
 }
