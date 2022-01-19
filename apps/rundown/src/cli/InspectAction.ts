@@ -2,14 +2,16 @@
 // See LICENSE in the project root for license information.
 
 import { CommandLineFlagParameter } from '@rushstack/ts-command-line';
+import { Terminal } from '@rushstack/node-core-library';
 
 import { BaseReportAction } from './BaseReportAction';
 import { Rundown } from '../Rundown';
 
 export class InspectAction extends BaseReportAction {
+  private _terminal: Terminal;
   private _traceParameter!: CommandLineFlagParameter;
 
-  public constructor() {
+  public constructor(terminal: Terminal) {
     super({
       actionName: 'inspect',
       summary: 'Invoke a Node.js script and generate detailed diagnostic output',
@@ -17,6 +19,7 @@ export class InspectAction extends BaseReportAction {
         'Invoke a Node.js script and generate detailed diagnostic output.  This command is used' +
         ' to inspect performance regressions.'
     });
+    this._terminal = terminal;
   }
 
   protected onDefineParameters(): void {
@@ -30,7 +33,7 @@ export class InspectAction extends BaseReportAction {
   }
 
   protected async onExecute(): Promise<void> {
-    const rundown: Rundown = new Rundown();
+    const rundown: Rundown = new Rundown(this._terminal);
     await rundown.invokeAsync(
       this.scriptParameter.value!,
       this.argsParameter.value,

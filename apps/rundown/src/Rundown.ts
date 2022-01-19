@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import { FileSystem, PackageJsonLookup, Sort, Text } from '@rushstack/node-core-library';
+import { FileSystem, PackageJsonLookup, Sort, ITerminal, Text, Terminal } from '@rushstack/node-core-library';
 import * as child_process from 'child_process';
 import * as path from 'path';
 import stringArgv from 'string-argv';
@@ -10,7 +10,12 @@ import { IpcMessage } from './LauncherTypes';
 
 export class Rundown {
   // Map from required path --> caller path
-  private _importedModuleMap: Map<string, string> = new Map();
+  private readonly _importedModuleMap: Map<string, string> = new Map();
+  private readonly _terminal: Terminal;
+
+  public constructor(terminal: Terminal) {
+    this._terminal = terminal;
+  }
 
   public async invokeAsync(
     scriptPath: string,
@@ -25,8 +30,8 @@ export class Rundown {
 
     const expandedArgs: string[] = args === undefined ? [] : stringArgv(args);
 
-    console.log('Starting process: ' + [absoluteScriptPath, ...expandedArgs].join(' '));
-    console.log();
+    this._terminal.writeLine('Starting process: ' + [absoluteScriptPath, ...expandedArgs].join(' '));
+    this._terminal.writeLine();
 
     // Example process.argv:
     // ["path/to/launcher.js", "path/to/target-script.js", "first-target-arg"]
@@ -35,13 +40,13 @@ export class Rundown {
     await this._spawnLauncherAsync(nodeArgs, quiet, ignoreExitCode);
 
     if (!quiet) {
-      console.log();
+      this._terminal.writeLine();
     }
   }
 
   public writeSnapshotReport(): void {
     const reportPath: string = 'rundown-snapshot.log';
-    console.log('Writing report file: ' + reportPath);
+    this._terminal.writeLine('Writing report file: ' + reportPath);
 
     const packageJsonLookup: PackageJsonLookup = new PackageJsonLookup();
     const importedPaths: string[] = [...this._importedModuleMap.keys()];
@@ -71,7 +76,7 @@ export class Rundown {
 
   public writeInspectReport(traceImports: boolean): void {
     const reportPath: string = 'rundown-inspect.log';
-    console.log('Writing report file: ' + reportPath);
+    this._terminal.writeLine('Writing report file: ' + reportPath);
 
     const importedPaths: string[] = [...this._importedModuleMap.keys()];
     importedPaths.sort();

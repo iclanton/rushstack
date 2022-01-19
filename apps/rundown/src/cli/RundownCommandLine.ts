@@ -5,18 +5,20 @@ import { CommandLineParser } from '@rushstack/ts-command-line';
 
 import { SnapshotAction } from './SnapshotAction';
 import { InspectAction } from './InspectAction';
+import { Terminal } from '@rushstack/node-core-library';
 
 export class RundownCommandLine extends CommandLineParser {
-  public constructor() {
+  public constructor(terminal: Terminal) {
     super({
       toolFilename: 'rundown',
       toolDescription:
         'Detect load time regressions by running an app, tracing require() calls,' +
-        ' and generating a deterministic report'
+        ' and generating a deterministic report',
+      terminal
     });
 
-    this.addAction(new SnapshotAction());
-    this.addAction(new InspectAction());
+    this.addAction(new SnapshotAction(terminal));
+    this.addAction(new InspectAction(terminal));
   }
 
   protected onDefineParameters(): void {}
