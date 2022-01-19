@@ -13,6 +13,7 @@ import {
   DocHtmlEndTag,
   DocBlockTag
 } from '@microsoft/tsdoc';
+import { StringBufferTerminalProvider, Terminal } from '@rushstack/node-core-library';
 
 import { CustomDocNodes } from '../../nodes/CustomDocNodeKind';
 import { DocHeading } from '../../nodes/DocHeading';
@@ -167,8 +168,9 @@ test('render Markdown from TSDoc', () => {
   ]);
 
   const stringBuilder: StringBuilder = new StringBuilder();
+  const terminal: Terminal = new Terminal(new StringBufferTerminalProvider());
   const apiModel: ApiModel = new ApiModel();
-  const markdownEmitter: CustomMarkdownEmitter = new CustomMarkdownEmitter(apiModel);
+  const markdownEmitter: CustomMarkdownEmitter = new CustomMarkdownEmitter(terminal, apiModel);
   markdownEmitter.emit(stringBuilder, output, {
     contextApiItem: undefined,
     onGetFilenameForApiItem: (apiItem: ApiItem) => {

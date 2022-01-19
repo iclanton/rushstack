@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors';
 import * as path from 'path';
 import yaml = require('js-yaml');
 
 import { ApiModel } from '@microsoft/api-extractor-model';
-import { Text, FileSystem } from '@rushstack/node-core-library';
+import { Text, FileSystem, Terminal, Colors } from '@rushstack/node-core-library';
 
 import { IYamlTocItem } from '../yaml/IYamlTocFile';
 import { IYamlItem } from '../yaml/IYamlApiFile';
@@ -39,12 +38,17 @@ export class OfficeYamlDocumenter extends YamlDocumenter {
     Word: '/office/dev/add-ins/reference/requirement-sets/word-api-requirement-sets'
   };
 
-  public constructor(apiModel: ApiModel, inputFolder: string, newDocfxNamespaces?: boolean) {
-    super(apiModel, newDocfxNamespaces);
+  public constructor(
+    terminal: Terminal,
+    apiModel: ApiModel,
+    inputFolder: string,
+    newDocfxNamespaces?: boolean
+  ) {
+    super(terminal, apiModel, newDocfxNamespaces);
 
     const snippetsFilePath: string = path.join(inputFolder, 'snippets.yaml');
 
-    console.log('Loading snippets from ' + snippetsFilePath);
+    this.terminal.writeLine('Loading snippets from ' + snippetsFilePath);
 
     const snippetsContent: string = FileSystem.readFile(snippetsFilePath);
     this._snippets = yaml.load(snippetsContent, { filename: snippetsFilePath });
@@ -56,9 +60,9 @@ export class OfficeYamlDocumenter extends YamlDocumenter {
     super.generateFiles(outputFolder);
 
     // After we generate everything, check for any unused snippets
-    console.log();
+    this.terminal.writeLine();
     for (const apiName of Object.keys(this._snippets)) {
-      console.error(colors.yellow('Warning: Unused snippet ' + apiName));
+      this.terminal.writeErrorLine(Colors.yellow('Warning: Unused snippet ' + apiName));
     }
   }
 

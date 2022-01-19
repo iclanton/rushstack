@@ -3,10 +3,13 @@
 
 import * as path from 'path';
 import * as tsdoc from '@microsoft/tsdoc';
-import colors from 'colors';
 
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { FileSystem } from '@rushstack/node-core-library';
+import {
+  CommandLineAction,
+  CommandLineStringParameter,
+  ICommandLineActionOptions
+} from '@rushstack/ts-command-line';
+import { FileSystem, Terminal } from '@rushstack/node-core-library';
 import {
   ApiModel,
   ApiItem,
@@ -22,8 +25,14 @@ export interface IBuildApiModelResult {
 }
 
 export abstract class BaseAction extends CommandLineAction {
+  protected readonly terminal: Terminal;
   private _inputFolderParameter!: CommandLineStringParameter;
   private _outputFolderParameter!: CommandLineStringParameter;
+
+  public constructor(commandLineActionOptions: ICommandLineActionOptions, terminal: Terminal) {
+    super(commandLineActionOptions);
+    this.terminal = terminal;
+  }
 
   protected onDefineParameters(): void {
     // override
@@ -60,7 +69,7 @@ export abstract class BaseAction extends CommandLineAction {
 
     for (const filename of FileSystem.readFolderItemNames(inputFolder)) {
       if (filename.match(/\.api\.json$/i)) {
-        console.log(`Reading ${filename}`);
+        this.terminal.writeLine(`Reading ${filename}`);
         const filenamePath: string = path.join(inputFolder, filename);
         apiModel.loadPackage(filenamePath);
       }
@@ -87,10 +96,8 @@ export abstract class BaseAction extends CommandLineAction {
           );
 
           if (result.errorMessage) {
-            console.log(
-              colors.yellow(
-                `Warning: Unresolved @inheritDoc tag for ${apiItem.displayName}: ` + result.errorMessage
-              )
+            this.terminal.writeWarningLine(
+              `Warning: Unresolved @inheritDoc tag for ${apiItem.displayName}: ` + result.errorMessage
             );
           } else {
             if (

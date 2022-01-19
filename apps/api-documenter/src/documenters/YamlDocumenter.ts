@@ -10,7 +10,8 @@ import {
   PackageName,
   FileSystem,
   NewlineKind,
-  InternalError
+  InternalError,
+  Terminal
 } from '@rushstack/node-core-library';
 import { StringBuilder, DocSection, DocComment, DocBlock, StandardTags } from '@microsoft/tsdoc';
 import {
@@ -89,16 +90,18 @@ interface INameOptions {
  */
 export class YamlDocumenter {
   protected readonly newDocfxNamespaces: boolean;
+  protected readonly terminal: Terminal;
   private readonly _apiModel: ApiModel;
   private readonly _markdownEmitter: CustomMarkdownEmitter;
 
   private _apiItemsByCanonicalReference: Map<string, ApiItem>;
   private _yamlReferences: IYamlReferences | undefined;
 
-  public constructor(apiModel: ApiModel, newDocfxNamespaces: boolean = false) {
+  public constructor(terminal: Terminal, apiModel: ApiModel, newDocfxNamespaces: boolean = false) {
     this._apiModel = apiModel;
     this.newDocfxNamespaces = newDocfxNamespaces;
-    this._markdownEmitter = new CustomMarkdownEmitter(this._apiModel);
+    this.terminal = terminal;
+    this._markdownEmitter = new CustomMarkdownEmitter(this.terminal, this._apiModel);
     this._apiItemsByCanonicalReference = new Map<string, ApiItem>();
 
     this._initApiItems();
@@ -106,15 +109,15 @@ export class YamlDocumenter {
 
   /** @virtual */
   public generateFiles(outputFolder: string): void {
-    console.log();
+    this.terminal.writeLine();
     this._deleteOldOutputFiles(outputFolder);
 
     for (const apiPackage of this._apiModel.packages) {
-      console.log(`Writing ${apiPackage.name} package`);
+      this.terminal.writeLine(`Writing ${apiPackage.name} package`);
       this._visitApiItems(outputFolder, apiPackage, undefined);
     }
 
-    convertUDPYamlToSDP(outputFolder);
+    convertUDPYamlToSDP(outputFolder, this.terminal);
 
     this._writeTocFile(outputFolder, this._apiModel.packages);
   }
@@ -184,7 +187,7 @@ export class YamlDocumenter {
       const yamlFilePath: string = this._getYamlFilePath(outputFolder, apiItem);
 
       if (apiItem.kind === ApiItemKind.Package) {
-        console.log('Writing ' + yamlFilePath);
+        this.terminal.writeLine('Writing ' + yamlFilePath);
       }
 
       this._writeYamlFile(newYamlFile, yamlFilePath, 'UniversalReference', yamlApiSchema);
@@ -282,7 +285,7 @@ export class YamlDocumenter {
     const tocFile: IYamlTocFile = this.buildYamlTocFile(apiItems);
 
     const tocFilePath: string = path.join(outputFolder, 'toc.yml');
-    console.log('Writing ' + tocFilePath);
+    this.terminal.writeLine('Writing ' + tocFilePath);
     this._writeYamlFile(tocFile, tocFilePath, '', undefined);
   }
 
@@ -1047,7 +1050,7 @@ export class YamlDocumenter {
   }
 
   private _deleteOldOutputFiles(outputFolder: string): void {
-    console.log('Deleting old output from ' + outputFolder);
+    this.terminal.writeLine('Deleting old output from ' + outputFolder);
     FileSystem.ensureEmptyFolder(outputFolder);
   }
 }

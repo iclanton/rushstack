@@ -4,16 +4,20 @@
 import { ApiDocumenterCommandLine } from './ApiDocumenterCommandLine';
 import { BaseAction } from './BaseAction';
 import { MarkdownDocumenter } from '../documenters/MarkdownDocumenter';
+import { Terminal } from '@rushstack/node-core-library';
 
 export class MarkdownAction extends BaseAction {
-  public constructor(parser: ApiDocumenterCommandLine) {
-    super({
-      actionName: 'markdown',
-      summary: 'Generate documentation as Markdown files (*.md)',
-      documentation:
-        'Generates API documentation as a collection of files in' +
-        ' Markdown format, suitable for example for publishing on a GitHub site.'
-    });
+  public constructor(parser: ApiDocumenterCommandLine, terminal: Terminal) {
+    super(
+      {
+        actionName: 'markdown',
+        summary: 'Generate documentation as Markdown files (*.md)',
+        documentation:
+          'Generates API documentation as a collection of files in' +
+          ' Markdown format, suitable for example for publishing on a GitHub site.'
+      },
+      terminal
+    );
   }
 
   protected async onExecute(): Promise<void> {
@@ -21,6 +25,7 @@ export class MarkdownAction extends BaseAction {
     const { apiModel, outputFolder } = this.buildApiModel();
 
     const markdownDocumenter: MarkdownDocumenter = new MarkdownDocumenter({
+      terminal: this.terminal,
       apiModel,
       documenterConfig: undefined,
       outputFolder

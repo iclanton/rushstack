@@ -18,7 +18,7 @@ import {
   DocErrorText,
   DocBlockTag
 } from '@microsoft/tsdoc';
-import { InternalError } from '@rushstack/node-core-library';
+import { InternalError, Terminal } from '@rushstack/node-core-library';
 
 import { IndentedWriter } from '../utils/IndentedWriter';
 
@@ -42,6 +42,12 @@ export interface IMarkdownEmitterContext<TOptions = IMarkdownEmitterOptions> {
  * For more info:  https://en.wikipedia.org/wiki/Markdown
  */
 export class MarkdownEmitter {
+  protected readonly terminal: Terminal;
+
+  public constructor(terminal: Terminal) {
+    this.terminal = terminal;
+  }
+
   public emit(stringBuilder: StringBuilder, docNode: DocNode, options: IMarkdownEmitterOptions): string {
     const writer: IndentedWriter = new IndentedWriter(stringBuilder);
 
@@ -192,7 +198,7 @@ export class MarkdownEmitter {
       }
       case DocNodeKind.BlockTag: {
         const tagNode: DocBlockTag = docNode as DocBlockTag;
-        console.warn('Unsupported block tag: ' + tagNode.tagName);
+        this.terminal.writeWarningLine('Unsupported block tag: ' + tagNode.tagName);
         break;
       }
       default:

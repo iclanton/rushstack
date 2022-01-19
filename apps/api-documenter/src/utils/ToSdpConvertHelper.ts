@@ -15,17 +15,17 @@ import {
   CommonYamlModel
 } from '../yaml/ISDPYamlFile';
 import path from 'path';
-import { FileSystem, Encoding, NewlineKind } from '@rushstack/node-core-library';
+import { FileSystem, Encoding, NewlineKind, Terminal } from '@rushstack/node-core-library';
 import yaml = require('js-yaml');
 
-export function convertUDPYamlToSDP(folderPath: string): void {
-  convert(folderPath, folderPath);
+export function convertUDPYamlToSDP(folderPath: string, terminal: Terminal): void {
+  convert(folderPath, folderPath, terminal);
 }
 
-function convert(inputPath: string, outputPath: string): void {
-  console.log();
+function convert(inputPath: string, outputPath: string, terminal: Terminal): void {
+  terminal.writeLine();
   if (!FileSystem.exists(inputPath)) {
-    console.error(`input path: ${inputPath} is not exist`);
+    terminal.writeErrorLine(`input path: ${inputPath} is not exist`);
     return;
   }
 
@@ -44,10 +44,10 @@ function convert(inputPath: string, outputPath: string): void {
         return;
       }
 
-      console.log(`convert file ${fpath} from udp to sdp`);
+      terminal.writeLine(`convert file ${fpath} from udp to sdp`);
 
       const file: IYamlApiFile = yaml.safeLoad(yamlContent) as IYamlApiFile;
-      const result: { model: CommonYamlModel; type: string } | undefined = convertToSDP(file);
+      const result: { model: CommonYamlModel; type: string } | undefined = convertToSDP(file, terminal);
       if (result && result.model) {
         const stringified: string = `### YamlMime:TS${result.type}\n${yaml.safeDump(result.model, {
           lineWidth: 120
@@ -57,16 +57,16 @@ function convert(inputPath: string, outputPath: string): void {
           ensureFolderExists: true
         });
       } else {
-        console.log('not target file ', fpath);
+        terminal.writeLine('not target file ', fpath);
       }
     } else {
       // read contents
-      convert(fpath, path.join(outputPath, name));
+      convert(fpath, path.join(outputPath, name), terminal);
     }
   });
 }
 
-function convertToPackageSDP(transfomredClass: IYamlApiFile): PackageYamlModel {
+function convertToPackageSDP(transfomredClass: IYamlApiFile, terminal: Terminal): PackageYamlModel {
   const element: IYamlItem = transfomredClass.items[0];
   const packageModel: PackageYamlModel = {
     uid: element.uid,
@@ -92,7 +92,7 @@ function convertToPackageSDP(transfomredClass: IYamlApiFile): PackageYamlModel {
         // version 1 ignore typeAlias
         // assignPackageModelFields(packageModel, "typeAliases", child);
       } else {
-        // console.log("other type: ", child)
+        // terminal.writeLine("other type: ", child)
       }
     });
   }
@@ -110,8 +110,8 @@ function convertToPackageSDP(transfomredClass: IYamlApiFile): PackageYamlModel {
         packageModel.functions.push(convertToFunctionSDP(ele, element.uid, transfomredClass));
         break;
       default:
-        // console.log(transfomredClass.items[0].name)
-        console.log('[warning] not applied type(package): ', ele.type);
+        // terminal.writeLine(transfomredClass.items[0].name)
+        terminal.writeLine('[warning] not applied type(package): ', ele.type);
     }
   }
 
@@ -129,18 +129,21 @@ function assignPackageModelFields(
   packageModel[name]!.push(uid);
 }
 
-function convertToSDP(transfomredClass: IYamlApiFile): { model: CommonYamlModel; type: string } | undefined {
+function convertToSDP(
+  transfomredClass: IYamlApiFile,
+  terminal: Terminal
+): { model: CommonYamlModel; type: string } | undefined {
   const element: IYamlItem = transfomredClass.items[0];
   switch (element.type) {
     case 'class':
     case 'interface':
       return {
-        model: convertToTypeSDP(transfomredClass, element.type === 'class'),
+        model: convertToTypeSDP(transfomredClass, element.type === 'class', terminal),
         type: 'Type'
       };
     case 'enum':
       if (transfomredClass.items.length < 2) {
-        console.log(`[warning] enum ${element.uid}/${element.name} does not have fields`);
+        terminal.writeLine(`[warning] enum ${element.uid}/${element.name} does not have fields`);
         return undefined;
       }
       return { model: convertToEnumSDP(transfomredClass), type: 'Enum' };
@@ -148,11 +151,11 @@ function convertToSDP(transfomredClass: IYamlApiFile): { model: CommonYamlModel;
       return { model: convertToTypeAliasSDP(element, transfomredClass), type: 'TypeAlias' };
     case 'package':
       return {
-        model: convertToPackageSDP(transfomredClass),
+        model: convertToPackageSDP(transfomredClass, terminal),
         type: 'Package'
       };
     default:
-      console.log('not applied type: ', element.type);
+      terminal.writeLine('not applied type: ', element.type);
       return undefined;
   }
 }
@@ -198,7 +201,11 @@ function convertToTypeAliasSDP(element: IYamlItem, transfomredClass: IYamlApiFil
   return result;
 }
 
-function convertToTypeSDP(transfomredClass: IYamlApiFile, isClass: boolean): TypeYamlModel {
+function convertToTypeSDP(
+  transfomredClass: IYamlApiFile,
+  isClass: boolean,
+  terminal: Terminal
+): TypeYamlModel {
   const element: IYamlItem = transfomredClass.items[0];
   const constructors: CommonYamlModel[] = [];
   const properties: CommonYamlModel[] = [];
@@ -219,7 +226,9 @@ function convertToTypeSDP(transfomredClass: IYamlApiFile, isClass: boolean): Typ
     } else if (ele.type === 'event') {
       events.push(item);
     } else {
-      console.log(`[warning] ${ele.uid}#${ele.name} is not applied sub type ${ele.type} for type yaml`);
+      terminal.writeLine(
+        `[warning] ${ele.uid}#${ele.name} is not applied sub type ${ele.type} for type yaml`
+      );
     }
   }
   const result: TypeYamlModel = {

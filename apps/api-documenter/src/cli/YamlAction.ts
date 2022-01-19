@@ -8,20 +8,24 @@ import { BaseAction } from './BaseAction';
 
 import { YamlDocumenter } from '../documenters/YamlDocumenter';
 import { OfficeYamlDocumenter } from '../documenters/OfficeYamlDocumenter';
+import { Terminal } from '@rushstack/node-core-library';
 
 export class YamlAction extends BaseAction {
   private _officeParameter!: CommandLineFlagParameter;
   private _newDocfxNamespacesParameter!: CommandLineFlagParameter;
 
-  public constructor(parser: ApiDocumenterCommandLine) {
-    super({
-      actionName: 'yaml',
-      summary: 'Generate documentation as universal reference YAML files (*.yml)',
-      documentation:
-        'Generates API documentation as a collection of files conforming' +
-        ' to the universal reference YAML format, which is used by the docs.microsoft.com' +
-        ' pipeline.'
-    });
+  public constructor(parser: ApiDocumenterCommandLine, terminal: Terminal) {
+    super(
+      {
+        actionName: 'yaml',
+        summary: 'Generate documentation as universal reference YAML files (*.yml)',
+        documentation:
+          'Generates API documentation as a collection of files conforming' +
+          ' to the universal reference YAML format, which is used by the docs.microsoft.com' +
+          ' pipeline.'
+      },
+      terminal
+    );
   }
 
   protected onDefineParameters(): void {
@@ -47,8 +51,13 @@ export class YamlAction extends BaseAction {
     const { apiModel, inputFolder, outputFolder } = this.buildApiModel();
 
     const yamlDocumenter: YamlDocumenter = this._officeParameter.value
-      ? new OfficeYamlDocumenter(apiModel, inputFolder, this._newDocfxNamespacesParameter.value)
-      : new YamlDocumenter(apiModel, this._newDocfxNamespacesParameter.value);
+      ? new OfficeYamlDocumenter(
+          this.terminal,
+          apiModel,
+          inputFolder,
+          this._newDocfxNamespacesParameter.value
+        )
+      : new YamlDocumenter(this.terminal, apiModel, this._newDocfxNamespacesParameter.value);
 
     yamlDocumenter.generateFiles(outputFolder);
   }

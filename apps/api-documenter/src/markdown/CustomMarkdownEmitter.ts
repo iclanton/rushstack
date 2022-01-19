@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors';
-
 import { DocNode, DocLinkTag, StringBuilder } from '@microsoft/tsdoc';
 import { ApiModel, IResolveDeclarationReferenceResult, ApiItem } from '@microsoft/api-extractor-model';
 
@@ -14,6 +12,7 @@ import { DocTableCell } from '../nodes/DocTableCell';
 import { DocEmphasisSpan } from '../nodes/DocEmphasisSpan';
 import { MarkdownEmitter, IMarkdownEmitterContext, IMarkdownEmitterOptions } from './MarkdownEmitter';
 import { IndentedWriter } from '../utils/IndentedWriter';
+import { Terminal } from '@rushstack/node-core-library';
 
 export interface ICustomMarkdownEmitterOptions extends IMarkdownEmitterOptions {
   contextApiItem: ApiItem | undefined;
@@ -24,8 +23,8 @@ export interface ICustomMarkdownEmitterOptions extends IMarkdownEmitterOptions {
 export class CustomMarkdownEmitter extends MarkdownEmitter {
   private _apiModel: ApiModel;
 
-  public constructor(apiModel: ApiModel) {
-    super();
+  public constructor(terminal: Terminal, apiModel: ApiModel) {
+    super(terminal);
 
     this._apiModel = apiModel;
   }
@@ -179,15 +178,13 @@ export class CustomMarkdownEmitter extends MarkdownEmitter {
           context.writer.write(encodedLinkText);
           context.writer.write(`](${filename!})`);
         } else {
-          console.log(colors.yellow('WARNING: Unable to determine link text'));
+          this.terminal.writeWarningLine('WARNING: Unable to determine link text');
         }
       }
     } else if (result.errorMessage) {
-      console.log(
-        colors.yellow(
-          `WARNING: Unable to resolve reference "${docLinkTag.codeDestination!.emitAsTsdoc()}": ` +
-            result.errorMessage
-        )
+      this.terminal.writeWarningLine(
+        `WARNING: Unable to resolve reference "${docLinkTag.codeDestination!.emitAsTsdoc()}": ` +
+          result.errorMessage
       );
     }
   }

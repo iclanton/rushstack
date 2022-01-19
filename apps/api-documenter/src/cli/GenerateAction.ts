@@ -8,18 +8,21 @@ import { BaseAction } from './BaseAction';
 import { DocumenterConfig } from '../documenters/DocumenterConfig';
 import { ExperimentalYamlDocumenter } from '../documenters/ExperimentalYamlDocumenter';
 
-import { FileSystem } from '@rushstack/node-core-library';
+import { FileSystem, Terminal } from '@rushstack/node-core-library';
 import { MarkdownDocumenter } from '../documenters/MarkdownDocumenter';
 
 export class GenerateAction extends BaseAction {
-  public constructor(parser: ApiDocumenterCommandLine) {
-    super({
-      actionName: 'generate',
-      summary: 'EXPERIMENTAL',
-      documentation:
-        'EXPERIMENTAL - This action is a prototype of a new config file driven mode of operation for' +
-        ' API Documenter.  It is not ready for general usage yet.  Its design may change in the future.'
-    });
+  public constructor(parser: ApiDocumenterCommandLine, terminal: Terminal) {
+    super(
+      {
+        actionName: 'generate',
+        summary: 'EXPERIMENTAL',
+        documentation:
+          'EXPERIMENTAL - This action is a prototype of a new config file driven mode of operation for' +
+          ' API Documenter.  It is not ready for general usage yet.  Its design may change in the future.'
+      },
+      terminal
+    );
   }
 
   protected async onExecute(): Promise<void> {
@@ -45,6 +48,7 @@ export class GenerateAction extends BaseAction {
 
     if (documenterConfig.configFile.outputTarget === 'markdown') {
       const markdownDocumenter: MarkdownDocumenter = new MarkdownDocumenter({
+        terminal: this.terminal,
         apiModel,
         documenterConfig,
         outputFolder
@@ -52,6 +56,7 @@ export class GenerateAction extends BaseAction {
       markdownDocumenter.generateFiles();
     } else {
       const yamlDocumenter: ExperimentalYamlDocumenter = new ExperimentalYamlDocumenter(
+        this.terminal,
         apiModel,
         documenterConfig
       );

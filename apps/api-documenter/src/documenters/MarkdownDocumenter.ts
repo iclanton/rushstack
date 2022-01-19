@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 import * as path from 'path';
-import { PackageName, FileSystem, NewlineKind } from '@rushstack/node-core-library';
+import { PackageName, FileSystem, NewlineKind, Terminal } from '@rushstack/node-core-library';
 import {
   DocSection,
   DocPlainText,
@@ -61,6 +61,7 @@ import { DocumenterConfig } from './DocumenterConfig';
 import { MarkdownDocumenterAccessor } from '../plugin/MarkdownDocumenterAccessor';
 
 export interface IMarkdownDocumenterOptions {
+  terminal: Terminal;
   apiModel: ApiModel;
   documenterConfig: DocumenterConfig | undefined;
   outputFolder: string;
@@ -71,6 +72,7 @@ export interface IMarkdownDocumenterOptions {
  * For more info:  https://en.wikipedia.org/wiki/Markdown
  */
 export class MarkdownDocumenter {
+  private readonly _terminal: Terminal;
   private readonly _apiModel: ApiModel;
   private readonly _documenterConfig: DocumenterConfig | undefined;
   private readonly _tsdocConfiguration: TSDocConfiguration;
@@ -79,11 +81,12 @@ export class MarkdownDocumenter {
   private readonly _pluginLoader: PluginLoader;
 
   public constructor(options: IMarkdownDocumenterOptions) {
+    this._terminal = options.terminal;
     this._apiModel = options.apiModel;
     this._documenterConfig = options.documenterConfig;
     this._outputFolder = options.outputFolder;
     this._tsdocConfiguration = CustomDocNodes.configuration;
-    this._markdownEmitter = new CustomMarkdownEmitter(this._apiModel);
+    this._markdownEmitter = new CustomMarkdownEmitter(this._terminal, this._apiModel);
 
     this._pluginLoader = new PluginLoader();
   }
@@ -103,7 +106,7 @@ export class MarkdownDocumenter {
       });
     }
 
-    console.log();
+    this._terminal.writeLine();
     this._deleteOldOutputFiles();
 
     this._writeApiItemPage(this._apiModel);
@@ -149,7 +152,7 @@ export class MarkdownDocumenter {
         output.appendNode(new DocHeading({ configuration, title: `${scopedName} namespace` }));
         break;
       case ApiItemKind.Package:
-        console.log(`Writing ${apiItem.displayName} package`);
+        this._terminal.writeLine(`Writing ${apiItem.displayName} package`);
         const unscopedPackageName: string = PackageName.getUnscopedName(apiItem.displayName);
         output.appendNode(new DocHeading({ configuration, title: `${unscopedPackageName} package` }));
         break;
@@ -1129,7 +1132,7 @@ export class MarkdownDocumenter {
   }
 
   private _deleteOldOutputFiles(): void {
-    console.log('Deleting old output from ' + this._outputFolder);
+    this._terminal.writeLine('Deleting old output from ' + this._outputFolder);
     FileSystem.ensureEmptyFolder(this._outputFolder);
   }
 }

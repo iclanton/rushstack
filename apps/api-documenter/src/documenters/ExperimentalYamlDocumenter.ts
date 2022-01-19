@@ -3,6 +3,7 @@
 
 import { DocComment, DocInlineTag } from '@microsoft/tsdoc';
 import { ApiModel, ApiItem, ApiItemKind, ApiDocumentedItem } from '@microsoft/api-extractor-model';
+import { Terminal } from '@rushstack/node-core-library';
 
 import { IConfigTableOfContents } from './IConfigFile';
 import { IYamlTocItem, IYamlTocFile } from '../yaml/IYamlTocFile';
@@ -18,8 +19,8 @@ export class ExperimentalYamlDocumenter extends YamlDocumenter {
   private _tocPointerMap: { [key: string]: IYamlTocItem };
   private _catchAllPointer: IYamlTocItem | undefined;
 
-  public constructor(apiModel: ApiModel, documenterConfig: DocumenterConfig) {
-    super(apiModel, documenterConfig.configFile.newDocfxNamespaces);
+  public constructor(terminal: Terminal, apiModel: ApiModel, documenterConfig: DocumenterConfig) {
+    super(terminal, apiModel, documenterConfig.configFile.newDocfxNamespaces);
     this._config = documenterConfig.configFile.tableOfContents!;
 
     this._tocPointerMap = {};
