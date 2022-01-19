@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 import { EOL } from 'os';
-import { enabled as supportsColor } from 'colors/safe';
+import supportsColor from 'supports-color';
 
 import { ITerminalProvider, TerminalProviderSeverity } from './ITerminalProvider';
 
@@ -91,6 +91,11 @@ export class ConsoleTerminalProvider implements ITerminalProvider {
    * {@inheritDoc ITerminalProvider.supportsColor}
    */
   public get supportsColor(): boolean {
-    return supportsColor;
+    return (
+      supportsColor.stdout &&
+      supportsColor.stdout.hasBasic &&
+      supportsColor.stderr &&
+      supportsColor.stderr.hasBasic
+    );
   }
 }
