@@ -11,7 +11,10 @@ import {
   PackageJsonLookup,
   IPackageJson,
   INodePackageJson,
-  Path
+  Path,
+  ITerminal,
+  ConsoleTerminalProvider,
+  Terminal
 } from '@rushstack/node-core-library';
 
 import { ExtractorConfig } from './ExtractorConfig';
@@ -88,6 +91,8 @@ export interface IExtractorInvokeOptions {
    * the STDERR/STDOUT console.
    */
   messageCallback?: (message: ExtractorMessage) => void;
+
+  terminal?: ITerminal;
 }
 
 /**
@@ -208,7 +213,8 @@ export class Extractor {
       messagesConfig: extractorConfig.messages || {},
       showVerboseMessages: !!options.showVerboseMessages,
       showDiagnostics: !!options.showDiagnostics,
-      tsdocConfiguration: extractorConfig.tsdocConfiguration
+      tsdocConfiguration: extractorConfig.tsdocConfiguration,
+      terminal: options.terminal || new Terminal(new ConsoleTerminalProvider())
     });
 
     if (extractorConfig.tsdocConfigFile.filePath && !extractorConfig.tsdocConfigFile.fileNotFound) {

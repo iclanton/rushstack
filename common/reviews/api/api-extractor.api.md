@@ -5,6 +5,7 @@
 ```ts
 
 import { INodePackageJson } from '@rushstack/node-core-library';
+import { ITerminal } from '@rushstack/node-core-library';
 import { JsonSchema } from '@rushstack/node-core-library';
 import { NewlineKind } from '@rushstack/node-core-library';
 import { PackageJsonLookup } from '@rushstack/node-core-library';
@@ -158,6 +159,8 @@ export class ExtractorResult {
 // @public
 export interface ICompilerStateCreateOptions {
     additionalEntryPoints?: string[];
+    // (undocumented)
+    terminal?: ITerminal;
     typescriptCompilerFolder?: string;
 }
 
@@ -250,6 +253,8 @@ export interface IExtractorInvokeOptions {
     messageCallback?: (message: ExtractorMessage) => void;
     showDiagnostics?: boolean;
     showVerboseMessages?: boolean;
+    // (undocumented)
+    terminal?: ITerminal;
     typescriptCompilerFolder?: string;
 }
 
@@ -264,6 +269,5 @@ export interface IExtractorMessagesConfig {
     extractorMessageReporting?: IConfigMessageReportingTable;
     tsdocMessageReporting?: IConfigMessageReportingTable;
 }
-
 
 ```

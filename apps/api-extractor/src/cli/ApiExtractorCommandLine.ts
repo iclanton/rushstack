@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors';
-import * as os from 'os';
-
 import { CommandLineParser, CommandLineFlagParameter } from '@rushstack/ts-command-line';
-import { InternalError } from '@rushstack/node-core-library';
+import { InternalError, Terminal } from '@rushstack/node-core-library';
 
 import { RunAction } from './RunAction';
 import { InitAction } from './InitAction';
@@ -13,7 +10,7 @@ import { InitAction } from './InitAction';
 export class ApiExtractorCommandLine extends CommandLineParser {
   private _debugParameter!: CommandLineFlagParameter;
 
-  public constructor() {
+  public constructor(terminal: Terminal) {
     super({
       toolFilename: 'api-extractor',
       toolDescription:
@@ -21,7 +18,8 @@ export class ApiExtractorCommandLine extends CommandLineParser {
         ' point for your package, collects the inventory of exported declarations, and then generates three kinds' +
         ' of output:  an API report file (.api.md) to facilitate reviews, a declaration rollup (.d.ts) to be' +
         ' published with your NPM package, and a doc model file (.api.json) to be used with a documentation' +
-        ' tool such as api-documenter.  For details, please visit the web site.'
+        ' tool such as api-documenter.  For details, please visit the web site.',
+      terminal
     });
     this._populateActions();
   }
@@ -43,9 +41,11 @@ export class ApiExtractorCommandLine extends CommandLineParser {
 
     return super.onExecute().catch((error) => {
       if (this._debugParameter.value) {
-        console.error(os.EOL + error.stack);
+        this.terminal.writeErrorLine();
+        this.terminal.writeErrorLine(error.stack);
       } else {
-        console.error(os.EOL + colors.red('ERROR: ' + error.message.trim()));
+        this.terminal.writeErrorLine();
+        this.terminal.writeErrorLine('ERROR: ' + error.message.trim());
       }
 
       process.exitCode = 1;
@@ -53,7 +53,7 @@ export class ApiExtractorCommandLine extends CommandLineParser {
   }
 
   private _populateActions(): void {
-    this.addAction(new InitAction(this));
-    this.addAction(new RunAction(this));
+    this.addAction(new InitAction(this, this.terminal));
+    this.addAction(new RunAction(this, this.terminal));
   }
 }

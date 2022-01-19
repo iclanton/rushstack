@@ -3,9 +3,8 @@
 
 import * as path from 'path';
 import * as ts from 'typescript';
-import colors = require('colors');
 
-import { JsonFile } from '@rushstack/node-core-library';
+import { Colors, ConsoleTerminalProvider, JsonFile, ITerminal, Terminal } from '@rushstack/node-core-library';
 
 import { ExtractorConfig } from './ExtractorConfig';
 import { IExtractorInvokeOptions } from './Extractor';
@@ -22,6 +21,8 @@ export interface ICompilerStateCreateOptions {
    * Additional .d.ts files to include in the analysis.
    */
   additionalEntryPoints?: string[];
+
+  terminal?: ITerminal;
 }
 
 /**
@@ -59,8 +60,9 @@ export class CompilerState {
 
     if (!commandLine.options.skipLibCheck && extractorConfig.skipLibCheck) {
       commandLine.options.skipLibCheck = true;
-      console.log(
-        colors.cyan(
+      const terminal: ITerminal = options?.terminal || new Terminal(new ConsoleTerminalProvider());
+      terminal.writeLine(
+        Colors.cyan(
           'API Extractor was invoked with skipLibCheck. This is not recommended and may cause ' +
             'incorrect type analysis.'
         )

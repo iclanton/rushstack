@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors';
-import * as os from 'os';
 import * as path from 'path';
-import { PackageJsonLookup, FileSystem, IPackageJson, Path } from '@rushstack/node-core-library';
+import {
+  PackageJsonLookup,
+  FileSystem,
+  IPackageJson,
+  Path,
+  ITerminal,
+  Colors
+} from '@rushstack/node-core-library';
 
 import {
   CommandLineAction,
@@ -18,18 +23,20 @@ import { ApiExtractorCommandLine } from './ApiExtractorCommandLine';
 import { ExtractorConfig, IExtractorConfigPrepareOptions } from '../api/ExtractorConfig';
 
 export class RunAction extends CommandLineAction {
+  private readonly _terminal: ITerminal;
   private _configFileParameter!: CommandLineStringParameter;
   private _localParameter!: CommandLineFlagParameter;
   private _verboseParameter!: CommandLineFlagParameter;
   private _diagnosticsParameter!: CommandLineFlagParameter;
   private _typescriptCompilerFolder!: CommandLineStringParameter;
 
-  public constructor(parser: ApiExtractorCommandLine) {
+  public constructor(parser: ApiExtractorCommandLine, terminal: ITerminal) {
     super({
       actionName: 'run',
       summary: 'Invoke API Extractor on a project',
       documentation: 'Invoke API Extractor on a project'
     });
+    this._terminal = terminal;
   }
 
   protected onDefineParameters(): void {
@@ -129,7 +136,7 @@ export class RunAction extends CommandLineAction {
         pathToConvert: prepareOptions.configObjectFullPath,
         baseFolder: process.cwd()
       });
-      console.log(`Using configuration from ${configObjectShortPath}`);
+      this._terminal.writeLine(`Using configuration from ${configObjectShortPath}`);
 
       extractorConfig = ExtractorConfig.prepare(prepareOptions);
     }
@@ -138,18 +145,22 @@ export class RunAction extends CommandLineAction {
       localBuild: this._localParameter.value,
       showVerboseMessages: this._verboseParameter.value,
       showDiagnostics: this._diagnosticsParameter.value,
-      typescriptCompilerFolder: typescriptCompilerFolder
+      typescriptCompilerFolder: typescriptCompilerFolder,
+      terminal: this._terminal
     });
 
     if (extractorResult.succeeded) {
-      console.log(os.EOL + 'API Extractor completed successfully');
+      this._terminal.writeLine();
+      this._terminal.writeLine('API Extractor completed successfully');
     } else {
       process.exitCode = 1;
 
       if (extractorResult.errorCount > 0) {
-        console.log(os.EOL + colors.red('API Extractor completed with errors'));
+        this._terminal.writeLine();
+        this._terminal.writeLine(Colors.red('API Extractor completed with errors'));
       } else {
-        console.log(os.EOL + colors.yellow('API Extractor completed with warnings'));
+        this._terminal.writeLine();
+        this._terminal.writeLine(Colors.yellow('API Extractor completed with warnings'));
       }
     }
   }

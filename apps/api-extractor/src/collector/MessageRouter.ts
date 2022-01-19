@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors';
 import * as ts from 'typescript';
 import * as tsdoc from '@microsoft/tsdoc';
-import { Sort, InternalError, LegacyAdapters } from '@rushstack/node-core-library';
+import { Sort, InternalError, LegacyAdapters, ITerminal, Colors } from '@rushstack/node-core-library';
 
 import { AstDeclaration } from '../analyzer/AstDeclaration';
 import { AstSymbol } from '../analyzer/AstSymbol';
@@ -32,6 +31,7 @@ export interface IMessageRouterOptions {
   showVerboseMessages: boolean;
   showDiagnostics: boolean;
   tsdocConfiguration: tsdoc.TSDocConfiguration;
+  terminal: ITerminal;
 }
 
 export interface IBuildJsonDumpObjectOptions {
@@ -44,6 +44,8 @@ export interface IBuildJsonDumpObjectOptions {
 export class MessageRouter {
   public static readonly DIAGNOSTICS_LINE: string =
     '============================================================';
+
+  private readonly _terminal: ITerminal;
 
   private readonly _workingPackageFolder: string | undefined;
   private readonly _messageCallback: ((message: ExtractorMessage) => void) | undefined;
@@ -84,6 +86,7 @@ export class MessageRouter {
   public readonly showDiagnostics: boolean;
 
   public constructor(options: IMessageRouterOptions) {
+    this._terminal = options.terminal;
     this._workingPackageFolder = options.workingPackageFolder;
     this._messageCallback = options.messageCallback;
 
@@ -593,17 +596,17 @@ export class MessageRouter {
 
     switch (message.logLevel) {
       case ExtractorLogLevel.Error:
-        console.error(colors.red('Error: ' + messageText));
+        this._terminal.writeErrorLine('Error: ' + messageText);
         break;
       case ExtractorLogLevel.Warning:
-        console.warn(colors.yellow('Warning: ' + messageText));
+        this._terminal.writeWarningLine('Warning: ' + messageText);
         break;
       case ExtractorLogLevel.Info:
-        console.log(messageText);
+        this._terminal.writeLine(messageText);
         break;
       case ExtractorLogLevel.Verbose:
         if (this.showVerboseMessages) {
-          console.log(colors.cyan(messageText));
+          this._terminal.writeLine(Colors.cyan(messageText));
         }
         break;
       default:
