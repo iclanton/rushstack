@@ -18,17 +18,23 @@ const alreadyReportedNodeTooNewError: boolean = NodeJsCompatibility.warnAboutVer
   alreadyReportedNodeTooNewError: false
 });
 
-import colors from 'colors/safe';
-import * as os from 'os';
 import * as semver from 'semver';
 
-import { Text, PackageJsonLookup } from '@rushstack/node-core-library';
+import {
+  Text,
+  PackageJsonLookup,
+  Terminal,
+  ConsoleTerminalProvider,
+  Colors
+} from '@rushstack/node-core-library';
 import { EnvironmentVariableNames } from '@microsoft/rush-lib';
 import * as rushLib from '@microsoft/rush-lib';
 
 import { RushCommandSelector } from './RushCommandSelector';
 import { RushVersionSelector } from './RushVersionSelector';
 import { MinimalRushConfiguration } from './MinimalRushConfiguration';
+
+const terminal: Terminal = new Terminal(new ConsoleTerminalProvider());
 
 // Load the configuration
 const configuration: MinimalRushConfiguration | undefined =
@@ -42,8 +48,8 @@ const previewVersion: string | undefined = process.env[EnvironmentVariableNames.
 
 if (previewVersion) {
   if (!semver.valid(previewVersion, false)) {
-    console.error(
-      colors.red(`Invalid value for RUSH_PREVIEW_VERSION environment variable: "${previewVersion}"`)
+    terminal.writeErrorLine(
+      `Invalid value for RUSH_PREVIEW_VERSION environment variable: "${previewVersion}"`
     );
     process.exit(1);
   }
@@ -69,7 +75,9 @@ if (previewVersion) {
     `*********************************************************************`
   );
 
-  console.error(lines.map((line) => colors.black(colors.bgYellow(line))).join(os.EOL));
+  for (const line of lines) {
+    terminal.writeLine(Colors.black(Colors.yellowBackground(line)));
+  }
 } else if (configuration) {
   rushVersionToLoad = configuration.rushVersion;
 }
@@ -87,13 +95,12 @@ const launchOptions: rushLib.ILaunchOptions = { isManaged, alreadyReportedNodeTo
 // If we're inside a repo folder, and it's requesting a different version, then use the RushVersionManager to
 // install it
 if (rushVersionToLoad && rushVersionToLoad !== currentPackageVersion) {
-  const versionSelector: RushVersionSelector = new RushVersionSelector(currentPackageVersion);
+  const versionSelector: RushVersionSelector = new RushVersionSelector(currentPackageVersion, terminal);
   versionSelector
     .ensureRushVersionInstalledAsync(rushVersionToLoad, configuration, launchOptions)
-    .catch((error: Error) => {
-      console.log(colors.red('Error: ' + error.message));
-    });
+    .catch((error: Error) => terminal.writeErrorLine('Error: ' + error.message));
 } else {
   // Otherwise invoke the rush-lib that came with this rush package
-  RushCommandSelector.execute(currentPackageVersion, rushLib, launchOptions);
+  const rushCommandSelector: RushCommandSelector = new RushCommandSelector(terminal);
+  rushCommandSelector.execute(currentPackageVersion, rushLib, launchOptions);
 }

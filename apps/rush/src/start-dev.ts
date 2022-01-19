@@ -5,7 +5,7 @@
 // some other checks
 
 import * as rushLib from '@microsoft/rush-lib';
-import { PackageJsonLookup, Import } from '@rushstack/node-core-library';
+import { PackageJsonLookup, Import, Terminal, ConsoleTerminalProvider } from '@rushstack/node-core-library';
 
 import { RushCommandSelector } from './RushCommandSelector';
 
@@ -26,8 +26,10 @@ function includePlugin(pluginName: string): void {
 includePlugin('rush-amazon-s3-build-cache-plugin');
 includePlugin('rush-azure-storage-build-cache-plugin');
 
+const terminal: Terminal = new Terminal(new ConsoleTerminalProvider());
+const rushCommandSelector: RushCommandSelector = new RushCommandSelector(terminal);
 const currentPackageVersion: string = PackageJsonLookup.loadOwnPackageJson(__dirname).version;
-RushCommandSelector.execute(currentPackageVersion, rushLib, {
+rushCommandSelector.execute(currentPackageVersion, rushLib, {
   isManaged: false,
   alreadyReportedNodeTooNewError: false,
   builtInPluginConfigurations

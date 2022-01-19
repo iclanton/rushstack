@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import colors from 'colors/safe';
 import * as path from 'path';
+import type { Terminal } from '@rushstack/node-core-library';
 import * as rushLib from '@microsoft/rush-lib';
 
 type CommandName = 'rush' | 'rushx' | undefined;
@@ -15,15 +15,21 @@ type CommandName = 'rush' | 'rushx' | undefined;
  * @microsoft/rush-lib.
  */
 export class RushCommandSelector {
-  public static failIfNotInvokedAsRush(version: string): void {
-    if (RushCommandSelector._getCommandName() === 'rushx') {
-      RushCommandSelector._failWithError(
+  private readonly _terminal: Terminal;
+
+  public constructor(terminal: Terminal) {
+    this._terminal = terminal;
+  }
+
+  public failIfNotInvokedAsRush(version: string): void {
+    if (this._getCommandName() === 'rushx') {
+      this._failWithError(
         `This repository is using Rush version ${version} which does not support the "rushx" command`
       );
     }
   }
 
-  public static execute(
+  public execute(
     launcherVersion: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     selectedRushLib: any,
@@ -33,12 +39,12 @@ export class RushCommandSelector {
 
     if (!Rush) {
       // This should be impossible unless we somehow loaded an unexpected version
-      RushCommandSelector._failWithError(`Unable to find the "Rush" entry point in @microsoft/rush-lib`);
+      this._failWithError(`Unable to find the "Rush" entry point in @microsoft/rush-lib`);
     }
 
-    if (RushCommandSelector._getCommandName() === 'rushx') {
+    if (this._getCommandName() === 'rushx') {
       if (!Rush.launchRushX) {
-        RushCommandSelector._failWithError(
+        this._failWithError(
           `This repository is using Rush version ${Rush.version}` +
             ` which does not support the "rushx" command`
         );
@@ -49,12 +55,12 @@ export class RushCommandSelector {
     }
   }
 
-  private static _failWithError(message: string): never {
-    console.log(colors.red(message));
+  private _failWithError(message: string): never {
+    this._terminal.writeErrorLine(message);
     return process.exit(1);
   }
 
-  private static _getCommandName(): CommandName {
+  private _getCommandName(): CommandName {
     if (process.argv.length >= 2) {
       // Example:
       // argv[0]: "C:\\Program Files\\nodejs\\node.exe"
