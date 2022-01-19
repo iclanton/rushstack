@@ -84,6 +84,8 @@ export class Colors {
     // (undocumented)
     static redBackground(text: string | IColorableSequence): IColorableSequence;
     // (undocumented)
+    static serializeTextSegmentsToLines(segments: (string | IColorableSequence)[], withColor: boolean): string[];
+    // (undocumented)
     static underline(text: string | IColorableSequence): IColorableSequence;
     // (undocumented)
     static white(text: string | IColorableSequence): IColorableSequence;
