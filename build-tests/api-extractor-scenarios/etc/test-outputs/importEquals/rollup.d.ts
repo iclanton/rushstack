@@ -1,6 +1,6 @@
-import colors = require('colors');
+import fsx = require('fs-extra');
 
 /** @public */
-export declare function useColors(): typeof colors.zebra;
+export declare function existsSync(): typeof fsx.existsSync;
 
 export { }

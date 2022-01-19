@@ -17,7 +17,7 @@
     "api-extractor-lib1-test": "workspace:*",
     "api-extractor-lib2-test": "workspace:*",
     "api-extractor-lib3-test": "workspace:*",
-    "colors": "~1.2.1",
+    "@types/fs-extra": "7.0.0",
     "fs-extra": "~7.0.1",
     "typescript": "~4.5.2"
   }

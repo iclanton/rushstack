@@ -4,10 +4,10 @@
 
 ```ts
 
-import colors = require('colors');
+import fsx = require('fs-extra');
 
 // @public (undocumented)
-export function useColors(): typeof colors.zebra;
+export function existsSync(): typeof fsx.existsSync;
 
 // (No @packageDocumentation comment for this package)
 
