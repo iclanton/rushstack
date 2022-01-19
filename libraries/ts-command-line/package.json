@@ -14,9 +14,9 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@rushstack/node-core-library": "workspace:*",
     "@types/argparse": "1.0.38",
     "argparse": "~1.0.9",
-    "colors": "~1.2.1",
     "string-argv": "~0.3.1"
   },
   "devDependencies": {

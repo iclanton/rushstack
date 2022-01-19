@@ -5,13 +5,13 @@ import stringArgv from 'string-argv';
 
 import { CommandLineIntegerParameter } from '../parameters/CommandLineIntegerParameter';
 import { CommandLineStringParameter } from '../parameters/CommandLineStringParameter';
+import { CommandLineChoiceParameter } from './../parameters/CommandLineChoiceParameter';
 import {
   CommandLineParameterKind,
   CommandLineParameter,
   CommandLineParameterWithArgument
 } from '../parameters/BaseClasses';
 import { CommandLineAction } from './CommandLineAction';
-import { CommandLineChoiceParameter } from '..';
 import { CommandLineConstants } from '../Constants';
 
 const DEFAULT_WORD_TO_AUTOCOMPLETE: string = '';

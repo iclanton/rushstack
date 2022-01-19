@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 import * as argparse from 'argparse';
-import colors from 'colors';
+import { Terminal, ConsoleTerminalProvider, Colors, ITerminal } from '@rushstack/node-core-library';
 
 import { CommandLineAction } from './CommandLineAction';
 import { CommandLineParameterProvider, ICommandLineParserData } from './CommandLineParameterProvider';
@@ -28,6 +28,8 @@ export interface ICommandLineParserOptions {
    * Set to true to auto-define a tab completion action. False by default.
    */
   enableTabCompletionAction?: boolean;
+
+  terminal?: ITerminal;
 }
 
 /**
@@ -47,6 +49,7 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
    * The value will be assigned before onExecute() is invoked.
    */
   public selectedAction: CommandLineAction | undefined;
+  public readonly terminal: ITerminal;
 
   private _argumentParser: argparse.ArgumentParser;
   private _actionsSubParser: argparse.SubParser | undefined;
@@ -59,6 +62,7 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
   public constructor(options: ICommandLineParserOptions) {
     super();
 
+    this.terminal = options.terminal || new Terminal(new ConsoleTerminalProvider());
     this._options = options;
     this._actions = [];
     this._actionsByName = new Map<string, CommandLineAction>();
@@ -67,9 +71,14 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
       addHelp: true,
       prog: this._options.toolFilename,
       description: this._options.toolDescription,
-      epilog: colors.bold(
-        `For detailed help about a specific command, use: ${this._options.toolFilename} <command> -h`
-      )
+      epilog: Colors.serializeTextSegmentsToLines(
+        [
+          Colors.bold(
+            `For detailed help about a specific command, use: ${this._options.toolFilename} <command> -h`
+          )
+        ],
+        true
+      )[0]
     });
 
     this.onDefineParameters();
@@ -149,7 +158,7 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
         // executeWithoutErrorHandling() handles the successful cases,
         // so here we can assume err has a nonzero exit code
         if (err.message) {
-          console.error(err.message);
+          this.terminal.writeErrorLine(err.message);
         }
         if (!process.exitCode) {
           process.exitCode = err.exitCode;
@@ -162,8 +171,8 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
           message = 'Error: ' + message;
         }
 
-        console.error();
-        console.error(colors.red(message));
+        this.terminal.writeErrorLine();
+        this.terminal.writeErrorLine(message);
 
         if (!process.exitCode) {
           process.exitCode = 1;
@@ -221,7 +230,7 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
         if (!err.exitCode) {
           // non-error exit modeled using exception handling
           if (err.message) {
-            console.log(err.message);
+            this.terminal.writeLine(err.message);
           }
 
           return;

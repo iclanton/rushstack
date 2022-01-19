@@ -39,6 +39,6 @@ Optional arguments:
   -h, --help  Show this help message and exit.
   --verbose   A flag that affects all actions
 
-For detailed help about a specific command, use: example <command> -h
+[bold]For detailed help about a specific command, use: example <command> -h[normal]
 "
 `;

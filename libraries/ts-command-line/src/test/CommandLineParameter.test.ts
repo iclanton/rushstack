@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import * as colors from 'colors';
+import { AnsiEscape } from '@rushstack/node-core-library';
 
-import { CommandLineAction, CommandLineParser, DynamicCommandLineParser, DynamicCommandLineAction } from '..';
+import { DynamicCommandLineParser } from '../providers/DynamicCommandLineParser';
+import { DynamicCommandLineAction } from '../providers/DynamicCommandLineAction';
+import { CommandLineParser } from '../providers/CommandLineParser';
+import { CommandLineAction } from '../providers/CommandLineAction';
 
 function createParser(): DynamicCommandLineParser {
   const commandLineParser: DynamicCommandLineParser = new DynamicCommandLineParser({
@@ -150,13 +153,15 @@ const snapshotPropertyNames: string[] = [
 describe('CommandLineParameter', () => {
   it('prints the global help', () => {
     const commandLineParser: CommandLineParser = createParser();
-    const helpText: string = colors.stripColors(commandLineParser.renderHelpText());
+    const helpText: string = AnsiEscape.formatForTests(commandLineParser.renderHelpText());
     expect(helpText).toMatchSnapshot();
   });
 
   it('prints the action help', () => {
     const commandLineParser: CommandLineParser = createParser();
-    const helpText: string = colors.stripColors(commandLineParser.getAction('do:the-job').renderHelpText());
+    const helpText: string = AnsiEscape.formatForTests(
+      commandLineParser.getAction('do:the-job').renderHelpText()
+    );
     expect(helpText).toMatchSnapshot();
   });
 

@@ -5,6 +5,7 @@
 ```ts
 
 import * as argparse from 'argparse';
+import { ITerminal } from '@rushstack/node-core-library';
 
 // @public
 export abstract class CommandLineAction extends CommandLineParameterProvider {
@@ -189,6 +190,8 @@ export abstract class CommandLineParser extends CommandLineParameterProvider {
     protected _getArgumentParser(): argparse.ArgumentParser;
     protected onExecute(): Promise<void>;
     selectedAction: CommandLineAction | undefined;
+    // (undocumented)
+    readonly terminal: ITerminal;
     tryGetAction(actionName: string): CommandLineAction | undefined;
 }
 
@@ -305,6 +308,8 @@ export interface _ICommandLineParserData {
 // @public
 export interface ICommandLineParserOptions {
     enableTabCompletionAction?: boolean;
+    // (undocumented)
+    terminal?: ITerminal;
     toolDescription: string;
     toolFilename: string;
 }
