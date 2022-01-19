@@ -7,7 +7,6 @@ import {
   CommandLineFlagParameter
 } from '@rushstack/ts-command-line';
 import {
-  ITerminal,
   Terminal,
   InternalError,
   ConsoleTerminalProvider,
@@ -47,7 +46,6 @@ interface IPreInitializationArgumentValues {
 
 export class HeftCommandLineParser extends CommandLineParser {
   private _terminalProvider: ConsoleTerminalProvider;
-  private _terminal: ITerminal;
   private _loggingManager: LoggingManager;
   private _metricsCollector: MetricsCollector;
   private _pluginManager: PluginManager;
@@ -65,20 +63,17 @@ export class HeftCommandLineParser extends CommandLineParser {
     return !!this._preInitializationArgumentValues.debug;
   }
 
-  public get terminal(): ITerminal {
-    return this._terminal;
-  }
-
   public constructor() {
+    const terminalProvider: ConsoleTerminalProvider = new ConsoleTerminalProvider();
     super({
       toolFilename: 'heft',
-      toolDescription: 'Heft is a pluggable build system designed for web projects.'
+      toolDescription: 'Heft is a pluggable build system designed for web projects.',
+      terminal: new Terminal(terminalProvider)
     });
 
     this._preInitializationArgumentValues = this._getPreInitializationArgumentValues();
 
-    this._terminalProvider = new ConsoleTerminalProvider();
-    this._terminal = new Terminal(this._terminalProvider);
+    this._terminalProvider = terminalProvider;
     this._metricsCollector = new MetricsCollector();
     this._loggingManager = new LoggingManager({
       terminalProvider: this._terminalProvider
@@ -101,7 +96,7 @@ export class HeftCommandLineParser extends CommandLineParser {
     };
 
     const actionOptions: IHeftActionBaseOptions = {
-      terminal: this._terminal,
+      terminal: this.terminal,
       loggingManager: this._loggingManager,
       metricsCollector: this._metricsCollector,
       heftConfiguration: this._heftConfiguration,
@@ -119,11 +114,11 @@ export class HeftCommandLineParser extends CommandLineParser {
         const action: CustomAction<TParameters> = new CustomAction(options, actionOptions);
         this.addAction(action);
       },
-      commandLine: new HeftCommandLine(this, this._terminal)
+      commandLine: new HeftCommandLine(this, this.terminal)
     });
 
     this._pluginManager = new PluginManager({
-      terminal: this._terminal,
+      terminal: this.terminal,
       heftConfiguration: this._heftConfiguration,
       internalHeftSession: this._internalHeftSession
     });
@@ -181,7 +176,7 @@ export class HeftCommandLineParser extends CommandLineParser {
           pathToConvert: rigProfileFolder,
           baseFolder: this._heftConfiguration.buildFolder
         });
-        this._terminal.writeLine(`Using rig configuration from ${relativeRigFolderPath}`);
+        this.terminal.writeLine(`Using rig configuration from ${relativeRigFolderPath}`);
       }
 
       await this._initializePluginsAsync();
@@ -204,10 +199,10 @@ export class HeftCommandLineParser extends CommandLineParser {
     // The .heft/clean.json file is a fairly reliable heuristic for detecting projects created prior to
     // the big config file redesign with Heft 0.14.0
     if (await FileSystem.existsAsync('.heft/clean.json')) {
-      this._terminal.writeErrorLine(
+      this.terminal.writeErrorLine(
         '\nThis project has a ".heft/clean.json" file, which is now obsolete as of Heft 0.14.0.'
       );
-      this._terminal.writeLine(
+      this.terminal.writeLine(
         '\nFor instructions for migrating config files, please read UPGRADING.md in the @rushstack/heft package folder.\n'
       );
       throw new AlreadyReportedError();
@@ -228,11 +223,11 @@ export class HeftCommandLineParser extends CommandLineParser {
 
   private _normalizeCwd(): void {
     const buildFolder: string = this._heftConfiguration.buildFolder;
-    this._terminal.writeLine(`Project build folder is "${buildFolder}"`);
+    this.terminal.writeLine(`Project build folder is "${buildFolder}"`);
     const currentCwd: string = process.cwd();
     if (currentCwd !== buildFolder) {
       // Update the CWD to the project's build root. Some tools, like Jest, use process.cwd()
-      this._terminal.writeVerboseLine(`CWD is "${currentCwd}". Normalizing to project build folder.`);
+      this.terminal.writeVerboseLine(`CWD is "${currentCwd}". Normalizing to project build folder.`);
       // If `process.cwd()` and `buildFolder` differ only by casing on Windows, the chdir operation will not fix the casing, which is the entire purpose of the exercise.
       // As such, chdir to a different directory first. That directory needs to exist, so use the parent of the current directory.
       // This will not work if the current folder is the drive root, but that is a rather exotic case.
@@ -268,12 +263,12 @@ export class HeftCommandLineParser extends CommandLineParser {
 
   private async _reportErrorAndSetExitCode(error: Error): Promise<void> {
     if (!(error instanceof AlreadyReportedError)) {
-      this._terminal.writeErrorLine(error.toString());
+      this.terminal.writeErrorLine(error.toString());
     }
 
     if (this.isDebug) {
-      this._terminal.writeLine();
-      this._terminal.writeErrorLine(error.stack!);
+      this.terminal.writeLine();
+      this.terminal.writeErrorLine(error.stack!);
     }
 
     await this._metricsCollector.flushAndTeardownAsync();

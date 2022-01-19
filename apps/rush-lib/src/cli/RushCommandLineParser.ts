@@ -74,9 +74,9 @@ export class RushCommandLineParser extends CommandLineParser {
   private _debugParameter!: CommandLineFlagParameter;
   private readonly _rushOptions: IRushCommandLineParserOptions;
   private readonly _terminalProvider: ConsoleTerminalProvider;
-  private readonly _terminal: Terminal;
 
   public constructor(options?: Partial<IRushCommandLineParserOptions>) {
+    const terminalProvider: ConsoleTerminalProvider = new ConsoleTerminalProvider();
     super({
       toolFilename: 'rush',
       toolDescription:
@@ -88,11 +88,11 @@ export class RushCommandLineParser extends CommandLineParser {
         ' release and versioning strategies.  A full API is included to facilitate integration with other' +
         ' automation tools.  If you are looking for a proven turnkey solution for monorepo management,' +
         ' Rush is for you.',
-      enableTabCompletionAction: true
+      enableTabCompletionAction: true,
+      terminal: new Terminal(terminalProvider)
     });
 
-    this._terminalProvider = new ConsoleTerminalProvider();
-    this._terminal = new Terminal(this._terminalProvider);
+    this._terminalProvider = terminalProvider;
     this._rushOptions = this._normalizeOptions(options || {});
 
     try {
@@ -120,7 +120,7 @@ export class RushCommandLineParser extends CommandLineParser {
     this.pluginManager = new PluginManager({
       rushSession: this.rushSession,
       rushConfiguration: this.rushConfiguration,
-      terminal: this._terminal,
+      terminal: this.terminal,
       builtInPluginConfigurations: this._rushOptions.builtInPluginConfigurations
     });
 
@@ -132,7 +132,7 @@ export class RushCommandLineParser extends CommandLineParser {
       try {
         this._addCommandLineConfigActions(commandLineConfiguration);
       } catch (e) {
-        this._terminal.writeErrorLine(
+        this.terminal.writeErrorLine(
           `Error from plugin ${pluginLoader.pluginName} by ${pluginLoader.packageName}: ${(
             e as Error
           ).toString()}`
