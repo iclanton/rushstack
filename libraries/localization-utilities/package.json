@@ -2,7 +2,8 @@
   "name": "@rushstack/localization-utilities",
   "version": "0.6.0",
   "description": "This plugin contains some useful functions for localization.",
-  "main": "lib/index.js",
+  "main": "lib-commonjs/index.js",
+  "module": "lib/index.js",
   "typings": "dist/localization-utilities.d.ts",
   "license": "MIT",
   "repository": {

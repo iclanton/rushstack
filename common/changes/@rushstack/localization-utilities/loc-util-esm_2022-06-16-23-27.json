@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/localization-utilities",
+      "comment": "Generate esnext modules in addition to commonjs.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@rushstack/localization-utilities"
+}
