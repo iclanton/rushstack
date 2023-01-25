@@ -17,7 +17,8 @@ import {
   ConsoleTerminalProvider,
   Terminal,
   ITerminalProvider,
-  Path
+  Path,
+  Async
 } from '@rushstack/node-core-library';
 import { PrintUtilities } from '@rushstack/terminal';
 
@@ -112,7 +113,9 @@ export abstract class BaseInstallManager {
       throw new AlreadyReportedError();
     }
 
-    const { shrinkwrapIsUpToDate, variantIsUpToDate, npmrcHash } = await this.prepareAsync();
+    const { shrinkwrapIsUpToDate, variantIsUpToDate, npmrcHash } = await this.prepareAsync(
+      this.options.allowShrinkwrapUpdates
+    );
 
     if (this.options.checkOnly) {
       return;
@@ -251,7 +254,7 @@ export abstract class BaseInstallManager {
     return Utilities.isFileTimestampCurrent(lastModifiedDate, potentiallyChangedFiles);
   }
 
-  protected async prepareAsync(): Promise<{
+  protected async prepareAsync(isUpdate: boolean): Promise<{
     variantIsUpToDate: boolean;
     shrinkwrapIsUpToDate: boolean;
     npmrcHash: string | undefined;
@@ -259,7 +262,7 @@ export abstract class BaseInstallManager {
     // Check the policies
     PolicyValidator.validatePolicy(this.rushConfiguration, this.options);
 
-    this._installGitHooks();
+    await this._installGitHooksAsync(isUpdate);
 
     const approvedPackagesChecker: ApprovedPackagesChecker = new ApprovedPackagesChecker(
       this.rushConfiguration
@@ -404,14 +407,18 @@ export abstract class BaseInstallManager {
 
   /**
    * Git hooks are only installed if the repo opts in by including files in /common/git-hooks
+   *
+   * @param allowUpdateExecuteFlags - If true, then the execute bit will be set on all files in the
+   * common/git-hooks folder. If this is set to false, then the execute bit will not be modified
+   * and an error will be thrown if any of the files are not executable.
    */
-  private _installGitHooks(): void {
+  private async _installGitHooksAsync(allowUpdateExecuteFlags: boolean): Promise<void> {
     const hookSource: string = path.join(this.rushConfiguration.commonFolder, 'git-hooks');
     const git: Git = new Git(this.rushConfiguration);
     const hookDestination: string | undefined = git.getHooksFolder();
 
     if (FileSystem.exists(hookSource) && hookDestination) {
-      const allHookFilenames: string[] = FileSystem.readFolderItemNames(hookSource);
+      const allHookFilenames: string[] = await FileSystem.readFolderItemNamesAsync(hookSource);
       // Ignore the ".sample" file(s) in this folder.
       const hookFilenames: string[] = allHookFilenames.filter((x) => !/\.sample$/.test(x));
       if (hookFilenames.length > 0) {
@@ -448,15 +455,37 @@ export abstract class BaseInstallManager {
         }
 
         // Clear the currently installed git hooks and install fresh copies
-        FileSystem.ensureEmptyFolder(hookDestination);
+        await FileSystem.ensureEmptyFolderAsync(hookDestination);
 
         // Find the relative path from Git hooks directory to the directory storing the actual scripts.
         const hookRelativePath: string = Path.convertToSlashes(path.relative(hookDestination, hookSource));
 
         // Only copy files that look like Git hook names
         const filteredHookFilenames: string[] = hookFilenames.filter((x) => /^[a-z\-]+/.test(x));
-        for (const filename of filteredHookFilenames) {
-          const hookFileContent: string = `#!/bin/bash
+        let anyNonExecutable: boolean = false;
+        await Async.forEachAsync(
+          filteredHookFilenames,
+          async (filename) => {
+            const hookFilePath: string = `${hookSource}/${filename}`;
+            if (os.platform() !== 'win32') {
+              const hookFileModeBits: number = await FileSystem.getPosixModeBitsAsync(hookFilePath);
+              // eslint-disable-next-line no-bitwise
+              const canExecute: boolean = (hookFileModeBits & PosixModeBits.UserExecute) !== 0;
+              // eslint-disable-next-line no-bitwise
+              const canRead: boolean = (hookFileModeBits & PosixModeBits.UserRead) !== 0;
+              if (!canExecute || !canRead) {
+                anyNonExecutable = true;
+                if (allowUpdateExecuteFlags) {
+                  await FileSystem.changePosixModeBitsAsync(
+                    hookFilePath,
+                    // eslint-disable-next-line no-bitwise
+                    PosixModeBits.UserRead | PosixModeBits.UserExecute
+                  );
+                }
+              }
+            }
+
+            const hookShimFileContent: string = `#!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 SCRIPT_IMPLEMENTATION_PATH="$SCRIPT_DIR/${hookRelativePath}/${filename}"
 if [[ -f "$SCRIPT_IMPLEMENTATION_PATH" ]]; then
@@ -465,16 +494,38 @@ else
   echo "The ${filename} Git hook no longer exists in your version of the repo. Run 'rush install' or 'rush update' to refresh your installed Git hooks." >&2
 fi
 `;
-          // Create the hook file.  Important: For Bash scripts, the EOL must not be CRLF.
-          FileSystem.writeFile(path.join(hookDestination, filename), hookFileContent, {
-            convertLineEndings: NewlineKind.Lf
-          });
 
-          FileSystem.changePosixModeBits(
-            path.join(hookDestination, filename),
-            // eslint-disable-next-line no-bitwise
-            PosixModeBits.UserRead | PosixModeBits.UserExecute
-          );
+            const hookShimFilePath: string = `${hookDestination}/${filename}`;
+            // Create the hook file.  Important: For Bash scripts, the EOL must not be CRLF.
+            await FileSystem.writeFileAsync(hookShimFilePath, hookShimFileContent, {
+              convertLineEndings: NewlineKind.Lf
+            });
+
+            await FileSystem.changePosixModeBitsAsync(
+              hookShimFilePath,
+              // eslint-disable-next-line no-bitwise
+              PosixModeBits.UserRead | PosixModeBits.UserExecute
+            );
+          },
+          { concurrency: 10 }
+        );
+
+        if (anyNonExecutable) {
+          if (allowUpdateExecuteFlags) {
+            console.log(
+              colors.yellow(
+                'The file mode bits have been changed on one or more git hooks scripts to allow execution. ' +
+                  'This is required for the hooks to work properly. Please commit the changes to the files in ' +
+                  `the "${hookSource}" folder. Note that this check only occurs on UNIX-like operating systems.`
+              )
+            );
+          } else {
+            throw new Error(
+              'One or more git hooks scripts are not executable. This is required for the hooks to work properly. ' +
+                `Please run "rush update" and commit the changes to the files in the "${hookSource}" folder. ` +
+                'Note that this check only occurs on UNIX-like operating systems.'
+            );
+          }
         }
 
         console.log(

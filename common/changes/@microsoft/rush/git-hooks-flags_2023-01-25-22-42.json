@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Validate that Git hooks are executable on UNIX-like operating systems.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
