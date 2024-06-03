@@ -304,6 +304,13 @@
       }
     },
 
+    "@jest/test-result": {
+      "dependencies": {
+        "jest-haste-map": "*",
+        "jest-resolve": "*"
+      }
+    },
+
     "@serverless-stack/resources": {
       "dependencies": {
         "esbuild": "*"
