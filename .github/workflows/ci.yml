@@ -11,17 +11,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - NodeVersion: 16.20.x
-            NodeVersionDisplayName: 16
-            OS: ubuntu-latest
-          - NodeVersion: 18.18.x
+          - NodeVersion: 18.x.x
             NodeVersionDisplayName: 18
             OS: ubuntu-latest
-          - NodeVersion: 20.9.x
+          - NodeVersion: 20.x.x
             NodeVersionDisplayName: 20
             OS: ubuntu-latest
-          - NodeVersion: 18.18.x
-            NodeVersionDisplayName: 18
+          - NodeVersion: 22.x.x
+            NodeVersionDisplayName: 22
+            OS: ubuntu-latest
+          - NodeVersion: 20.x.x
+            NodeVersionDisplayName: 20
             OS: windows-latest
     name: Node.js v${{ matrix.NodeVersionDisplayName }} (${{ matrix.OS }})
     runs-on: ${{ matrix.OS }}
