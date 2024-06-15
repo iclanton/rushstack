@@ -3,6 +3,30 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/approved-packages.schema.json",
   "packages": [
     {
+      "name": "@actions/core",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@actions/exec",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@actions/glob",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@actions/io",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@azure/abort-controller",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@azure/ms-rest-js",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@fluentui/react",
       "allowedCategories": [ "libraries", "vscode-extensions" ]
     },
