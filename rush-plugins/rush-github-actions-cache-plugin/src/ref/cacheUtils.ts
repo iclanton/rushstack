@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as glob from '@actions/glob'

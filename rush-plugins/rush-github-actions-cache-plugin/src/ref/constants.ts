@@ -1,3 +1,4 @@
+/* eslint-disable */
 export enum CacheFilename {
   Gzip = 'cache.tgz',
   Zstd = 'cache.tzst'
