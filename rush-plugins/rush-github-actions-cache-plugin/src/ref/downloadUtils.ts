@@ -4,16 +4,16 @@ import {HttpClient, HttpClientResponse} from '@actions/http-client'
 import {BlockBlobClient} from '@azure/storage-blob'
 import {TransferProgressEvent} from '@azure/ms-rest-js'
 import * as buffer from 'buffer'
-import * as fs from 'fs'
 import * as stream from 'stream'
 import * as util from 'util'
 
-import * as utils from './cacheUtils'
 import {SocketTimeout} from './constants'
 import {DownloadOptions} from './options'
 import {retryHttpClientResponse} from './requestUtils'
 
 // import {AbortController} from '@azure/abort-controller'
+
+export type ChunkWriteCallback = (chunk: Buffer, count: number | undefined, offset: number | undefined) => Promise<void> | void
 
 /**
  * Pipes the body of a HTTP response to a stream
@@ -170,9 +170,9 @@ export class DownloadProgress {
  */
 export async function downloadCacheHttpClient(
   archiveLocation: string,
-  archivePath: string
+  onChunk: ChunkWriteCallback,
+  getWrittenLength: () => number
 ): Promise<void> {
-  const writeStream = fs.createWriteStream(archivePath)
   const httpClient = new HttpClient('actions/cache')
   const downloadResponse = await retryHttpClientResponse(
     'downloadCache',
@@ -185,14 +185,16 @@ export async function downloadCacheHttpClient(
     core.debug(`Aborting download, socket timed out after ${SocketTimeout} ms`)
   })
 
-  await pipeResponseToStream(downloadResponse, writeStream)
+  // readBodyBuffer is always defined in http-client
+  const responseBuffer: Buffer = await downloadResponse.readBodyBuffer!()
+  onChunk(responseBuffer, undefined, undefined)
 
   // Validate download size.
   const contentLengthHeader = downloadResponse.message.headers['content-length']
 
   if (contentLengthHeader) {
     const expectedLength = parseInt(contentLengthHeader)
-    const actualLength = utils.getArchiveFileSizeInBytes(archivePath)
+    const actualLength = getWrittenLength()
 
     if (actualLength !== expectedLength) {
       throw new Error(
@@ -212,10 +214,9 @@ export async function downloadCacheHttpClient(
  */
 export async function downloadCacheHttpClientConcurrent(
   archiveLocation: string,
-  archivePath: fs.PathLike,
+  onChunk: ChunkWriteCallback,
   options: DownloadOptions
 ): Promise<void> {
-  const archiveDescriptor = await fs.promises.open(archivePath, 'w')
   const httpClient = new HttpClient('actions/cache', undefined, {
     socketTimeout: options.timeoutInMs,
     keepAlive: true
@@ -271,16 +272,11 @@ export async function downloadCacheHttpClientConcurrent(
       | undefined
 
     const waitAndWrite: () => Promise<void> = async () => {
-      const segment = await Promise.race(Object.values(activeDownloads))
-      await archiveDescriptor.write(
-        segment.buffer,
-        0,
-        segment.count,
-        segment.offset
-      )
+      const { buffer, count, offset} = await Promise.race(Object.values(activeDownloads))
+      onChunk(buffer, count, offset)
       actives--
-      delete activeDownloads[segment.offset]
-      bytesDownloaded += segment.count
+      delete activeDownloads[offset]
+      bytesDownloaded += count
       progressFn({loadedBytes: bytesDownloaded})
     }
 
@@ -298,7 +294,6 @@ export async function downloadCacheHttpClientConcurrent(
     }
   } finally {
     httpClient.dispose()
-    await archiveDescriptor.close()
   }
 }
 
@@ -374,7 +369,8 @@ declare class DownloadSegment {
  */
 export async function downloadCacheStorageSDK(
   archiveLocation: string,
-  archivePath: string,
+  onChunk: ChunkWriteCallback,
+  getWrittenLength: () => number,
   options: DownloadOptions
 ): Promise<void> {
   const client = new BlockBlobClient(archiveLocation, undefined, {
@@ -395,7 +391,7 @@ export async function downloadCacheStorageSDK(
       'Unable to determine content length, downloading file with http-client...'
     )
 
-    await downloadCacheHttpClient(archiveLocation, archivePath)
+    await downloadCacheHttpClient(archiveLocation, onChunk, getWrittenLength)
   } else {
     // Use downloadToBuffer for faster downloads, since internally it splits the
     // file into 4 MB chunks which can then be parallelized and retried independently
@@ -407,8 +403,6 @@ export async function downloadCacheStorageSDK(
     // Updated segment size to 128MB = 134217728 bytes, to complete a segment faster and fail fast
     const maxSegmentSize = Math.min(134217728, buffer.constants.MAX_LENGTH)
     const downloadProgress = new DownloadProgress(contentLength)
-
-    const fd = fs.openSync(archivePath, 'w')
 
     try {
       downloadProgress.startDisplayTimer()
@@ -438,12 +432,11 @@ export async function downloadCacheStorageSDK(
             'Aborting cache download as the download time exceeded the timeout.'
           )
         } else if (Buffer.isBuffer(result)) {
-          fs.writeFileSync(fd, result)
+          onChunk(result, undefined, undefined)
         }
       }
     } finally {
       downloadProgress.stopDisplayTimer()
-      fs.closeSync(fd)
     }
   }
 }
