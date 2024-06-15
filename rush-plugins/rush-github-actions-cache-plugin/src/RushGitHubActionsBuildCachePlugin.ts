@@ -15,7 +15,7 @@ export class RushGitHubActionsBuildCachePlugin implements IRushPlugin {
     rushSession.hooks.initialize.tap(this.pluginName, () => {
       rushSession.registerCloudBuildCacheProviderFactory('github-actions', async (buildCacheConfig) => {
         const { GitHubActionsBuildCacheProvider } = await import('./GitHubActionsBuildCacheProvider');
-        return await GitHubActionsBuildCacheProvider.initializeAsync(rushConfiguration);
+        return new GitHubActionsBuildCacheProvider();
       });
     });
   }
