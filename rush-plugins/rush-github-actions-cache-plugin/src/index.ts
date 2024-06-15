@@ -4,4 +4,3 @@
 import { RushGitHubActionsBuildCachePlugin } from './RushGitHubActionsBuildCachePlugin';
 
 export default RushGitHubActionsBuildCachePlugin;
-export type { IHttpBuildCacheProviderOptions } from './GitHubActionsBuildCacheProvider';

@@ -11,11 +11,11 @@ const PLUGIN_NAME: string = 'GitHubActionsBuildCachePlugin';
 export class RushGitHubActionsBuildCachePlugin implements IRushPlugin {
   public readonly pluginName: string = PLUGIN_NAME;
 
-  public apply(rushSession: RushSession, rushConfig: RushConfiguration): void {
+  public apply(rushSession: RushSession, rushConfiguration: RushConfiguration): void {
     rushSession.hooks.initialize.tap(this.pluginName, () => {
-      rushSession.registerCloudBuildCacheProviderFactory('http', async (buildCacheConfig) => {
+      rushSession.registerCloudBuildCacheProviderFactory('github-actions', async (buildCacheConfig) => {
         const { GitHubActionsBuildCacheProvider } = await import('./GitHubActionsBuildCacheProvider');
-        return new GitHubActionsBuildCacheProvider(rushSession);
+        return await GitHubActionsBuildCacheProvider.initializeAsync(rushConfiguration);
       });
     });
   }
