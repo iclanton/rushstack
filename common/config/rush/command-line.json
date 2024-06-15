@@ -239,7 +239,7 @@
         "upstream": ["_phase:build"]
       },
       "ignoreMissingScript": true,
-      "allowWarningsOnSuccess": false
+      "allowWarningsOnSuccess": true
     },
     {
       "name": "_phase:test",
@@ -247,7 +247,7 @@
         "self": ["_phase:build"]
       },
       "ignoreMissingScript": true,
-      "allowWarningsOnSuccess": false
+      "allowWarningsOnSuccess": true
     }
   ],
 

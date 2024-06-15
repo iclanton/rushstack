@@ -41,7 +41,7 @@
    * If true, build caching will respect the allowWarningsInSuccessfulBuild flag and cache builds with warnings.
    * This will not replay warnings from the cached build.
    */
-  // "buildCacheWithAllowWarningsInSuccessfulBuild": true,
+  "buildCacheWithAllowWarningsInSuccessfulBuild": true,
 
   /**
    * If true, build skipping will respect the allowWarningsInSuccessfulBuild flag and skip builds with warnings.
