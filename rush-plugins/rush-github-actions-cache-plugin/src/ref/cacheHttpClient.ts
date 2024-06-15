@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as core from '@actions/core'
 import {HttpClient} from '@actions/http-client'
 import {BearerCredentialHandler} from '@actions/http-client/lib/auth'
@@ -30,7 +31,7 @@ import {
   UploadOptions,
   getDownloadOptions,
   getUploadOptions
-} from '../options'
+} from './options'
 import {
   isSuccessStatusCode,
   retryHttpClientResponse,

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as core from '@actions/core'
 import {HttpClient, HttpClientResponse} from '@actions/http-client'
 import {BlockBlobClient} from '@azure/storage-blob'
@@ -9,10 +10,10 @@ import * as util from 'util'
 
 import * as utils from './cacheUtils'
 import {SocketTimeout} from './constants'
-import {DownloadOptions} from '../options'
+import {DownloadOptions} from './options'
 import {retryHttpClientResponse} from './requestUtils'
 
-import {AbortController} from '@azure/abort-controller'
+// import {AbortController} from '@azure/abort-controller'
 
 /**
  * Pipes the body of a HTTP response to a stream
@@ -411,8 +412,8 @@ export async function downloadCacheStorageSDK(
 
     try {
       downloadProgress.startDisplayTimer()
-      const controller = new AbortController()
-      const abortSignal = controller.signal
+      // const controller = new AbortController()
+      // const abortSignal = controller.signal
       while (!downloadProgress.isDone()) {
         const segmentStart =
           downloadProgress.segmentOffset + downloadProgress.segmentSize
@@ -426,13 +427,13 @@ export async function downloadCacheStorageSDK(
         const result = await promiseWithTimeout(
           options.segmentTimeoutInMs || 3600000,
           client.downloadToBuffer(segmentStart, segmentSize, {
-            abortSignal,
+            // abortSignal,
             concurrency: options.downloadConcurrency,
             onProgress: downloadProgress.onProgress()
           })
         )
         if (result === 'timeout') {
-          controller.abort()
+          // controller.abort()
           throw new Error(
             'Aborting cache download as the download time exceeded the timeout.'
           )
