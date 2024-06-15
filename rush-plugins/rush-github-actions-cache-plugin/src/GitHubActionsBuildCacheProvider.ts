@@ -2,31 +2,21 @@
 // See LICENSE in the project root for license information.
 
 import type { ITerminal } from '@rushstack/terminal';
-import { FileSystem } from '@rushstack/node-core-library';
-import type { ICloudBuildCacheProvider, RushConfiguration } from '@rushstack/rush-sdk';
+import type { ICloudBuildCacheProvider } from '@rushstack/rush-sdk';
 
 import * as cacheHttpClient from './ref/cacheHttpClient';
 import type { ArtifactCacheEntry, ITypedResponseWithError, ReserveCacheResponse } from './ref/contracts';
 
-const IS_SUPPORTED: boolean = !!process.env.ACTIONS_CACHE_URL;
+// Get this from @actions/cache
+export function isFeatureAvailable(): boolean {
+  return !!process.env.ACTIONS_CACHE_URL;
+}
+
+const IS_SUPPORTED: boolean = isFeatureAvailable();
 
 export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider {
-  private readonly _tempPath: string;
-
   public get isCacheWriteAllowed(): boolean {
     return IS_SUPPORTED;
-  }
-
-  private constructor(tempPath: string) {
-    this._tempPath = tempPath;
-  }
-
-  public static async initializeAsync(
-    rushConfiguration: RushConfiguration
-  ): Promise<GitHubActionsBuildCacheProvider> {
-    const tempPath: string = `${rushConfiguration.commonTempFolder}/gh-actions-cache`;
-    await FileSystem.ensureEmptyFolderAsync(tempPath);
-    return new GitHubActionsBuildCacheProvider(tempPath);
   }
 
   public async tryGetCacheEntryBufferByIdAsync(
@@ -37,19 +27,14 @@ export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider
       return undefined;
     }
 
-    const augmentedCacheId: string = `000-${cacheId}`;
-    const tempPath: string = `${this._tempPath}/${augmentedCacheId}`;
     const getCacheEntryResult: ArtifactCacheEntry | null = await cacheHttpClient.getCacheEntry(
-      [augmentedCacheId],
-      [tempPath]
+      [cacheId],
+      [cacheId]
     );
     terminal.writeLine(`Restore cache data for ${cacheId}: ${JSON.stringify(getCacheEntryResult)}`);
     const archiveLocation: string | undefined = getCacheEntryResult?.archiveLocation;
     if (archiveLocation) {
-      await cacheHttpClient.downloadCache(archiveLocation, tempPath);
-      const result: Buffer = await FileSystem.readFileToBufferAsync(tempPath);
-      await FileSystem.deleteFileAsync(tempPath);
-      return result;
+      return await cacheHttpClient.downloadCacheToBuffer(archiveLocation);
     }
   }
 
@@ -58,20 +43,18 @@ export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider
     cacheId: string,
     entryBuffer: Buffer
   ): Promise<boolean> {
-    const augmentedCacheId: string = `000-${cacheId}`;
-    const tempPath: string = `${this._tempPath}/${augmentedCacheId}`;
     try {
-      await FileSystem.writeFileAsync(tempPath, entryBuffer, { ensureFolderExists: true });
-
       const archiveFileSize: number = entryBuffer.length;
       const reserveCacheResponse: ITypedResponseWithError<ReserveCacheResponse> =
-        await cacheHttpClient.reserveCache(augmentedCacheId, [tempPath], { cacheSize: archiveFileSize });
+        await cacheHttpClient.reserveCache(cacheId, [cacheId], {
+          cacheSize: archiveFileSize
+        });
 
       terminal.writeLine(`Reserve cache data for ${cacheId}: ${JSON.stringify(reserveCacheResponse)}`);
 
       const newCacheId: number | undefined = reserveCacheResponse?.result?.cacheId;
       if (newCacheId) {
-        await cacheHttpClient.saveCache(newCacheId, tempPath);
+        await cacheHttpClient.saveCacheBuffer(newCacheId, entryBuffer);
         return true;
       } else if (reserveCacheResponse?.statusCode === 400) {
         throw new Error(
@@ -82,14 +65,12 @@ export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider
         );
       } else {
         throw new Error(
-          `Unable to reserve cache with key ${augmentedCacheId}, another job may be creating this cache. More details: ${reserveCacheResponse?.error?.message}`
+          `Unable to reserve cache with key ${cacheId}, another job may be creating this cache. More details: ${reserveCacheResponse?.error?.message}`
         );
       }
     } catch (error) {
       terminal.writeErrorLine(`Failed to save cache: ${error}`);
       return false;
-    } finally {
-      await FileSystem.deleteFileAsync(tempPath);
     }
   }
 
