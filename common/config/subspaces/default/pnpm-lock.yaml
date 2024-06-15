@@ -3950,6 +3950,31 @@ importers:
         specifier: workspace:*
         version: link:../../rigs/local-node-rig
 
+  ../../../rush-plugins/rush-github-actions-cache-plugin:
+    dependencies:
+      '@actions/http-client':
+        specifier: ~2.2.1
+        version: 2.2.1
+      '@rushstack/node-core-library':
+        specifier: workspace:*
+        version: link:../../libraries/node-core-library
+      '@rushstack/rush-sdk':
+        specifier: workspace:*
+        version: link:../../libraries/rush-sdk
+    devDependencies:
+      '@microsoft/rush-lib':
+        specifier: workspace:*
+        version: link:../../libraries/rush-lib
+      '@rushstack/heft':
+        specifier: workspace:*
+        version: link:../../apps/heft
+      '@rushstack/terminal':
+        specifier: workspace:*
+        version: link:../../libraries/terminal
+      local-node-rig:
+        specifier: workspace:*
+        version: link:../../rigs/local-node-rig
+
   ../../../rush-plugins/rush-http-build-cache-plugin:
     dependencies:
       '@rushstack/node-core-library':
@@ -4530,6 +4555,13 @@ packages:
   /@aashutoshrathi/word-wrap@1.2.6:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
+
+  /@actions/http-client@2.2.1:
+    resolution: {integrity: sha512-KhC/cZsq7f8I4LfZSJKgCvEwfkE8o1538VoBeoGzokVLLnbFDEAdFD3UhoMklxo2un9NJVBdANOresx7vTHlHw==}
+    dependencies:
+      tunnel: 0.0.6
+      undici: 5.28.4
+    dev: false
 
   /@ampproject/remapping@2.3.0:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -7317,6 +7349,11 @@ packages:
     resolution: {integrity: sha512-gvCOUNpXsWrIQ3A4aXCLIdblL0tDq42BG/2Xw7oxbil9h11uow10ztS2GuFazNBfjbrsZ5nl+nPl5jDSjj5TSg==}
     dependencies:
       ajv: 6.12.6
+    dev: false
+
+  /@fastify/busboy@2.1.1:
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
     dev: false
 
   /@fastify/forwarded@1.0.0:
@@ -26366,6 +26403,13 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
+  /undici@5.28.4:
+    resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
+    engines: {node: '>=14.0'}
+    dependencies:
+      '@fastify/busboy': 2.1.1
+    dev: false
 
   /unfetch@4.2.0:
     resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}

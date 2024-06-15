@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Introduce the `@rushstack/rush-github-actions-cache-plugin` package for using the GitHub actions cache during CI.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
