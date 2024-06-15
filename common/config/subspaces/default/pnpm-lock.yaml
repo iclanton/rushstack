@@ -3952,15 +3952,48 @@ importers:
 
   ../../../rush-plugins/rush-github-actions-cache-plugin:
     dependencies:
+      '@actions/core':
+        specifier: ~1.10.1
+        version: 1.10.1
+      '@actions/exec':
+        specifier: ~1.1.1
+        version: 1.1.1
+      '@actions/glob':
+        specifier: ~0.4.0
+        version: 0.4.0
       '@actions/http-client':
         specifier: ~2.2.1
         version: 2.2.1
+      '@actions/io':
+        specifier: ~1.1.3
+        version: 1.1.3
+      '@azure/abort-controller':
+        specifier: ~2.1.2
+        version: 2.1.2
+      '@azure/ms-rest-js':
+        specifier: ~2.7.0
+        version: 2.7.0
+      '@azure/storage-blob':
+        specifier: ~12.17.0
+        version: 12.17.0
       '@rushstack/node-core-library':
         specifier: workspace:*
         version: link:../../libraries/node-core-library
       '@rushstack/rush-sdk':
         specifier: workspace:*
         version: link:../../libraries/rush-sdk
+      '@types/semver':
+        specifier: 7.5.0
+        version: 7.5.0
+      '@types/uuid':
+        specifier: ~8.3.4
+        version: 8.3.4
+      semver:
+        specifier: ~7.5.4
+        version: 7.5.4
+      uuid:
+        specifier: ~8.3.2
+        version: 8.3.2
     devDependencies:
       '@microsoft/rush-lib':
         specifier: workspace:*
@@ -4556,11 +4589,35 @@ packages:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==}
     engines: {node: '>=0.10.0'}
 
+  /@actions/core@1.10.1:
+    resolution: {integrity: sha512-3lBR9EDAY+iYIpTnTIXmWcNbX3T2kCkAEQGIQx4NVQ0575nk2k3GRZDTPQG+vVtS2izSLmINlxXf0uLtnrTP+g==}
+    dependencies:
+      '@actions/http-client': 2.2.1
+      uuid: 8.3.2
+    dev: false
+
+  /@actions/exec@1.1.1:
+    resolution: {integrity: sha512-+sCcHHbVdk93a0XT19ECtO/gIXoxvdsgQLzb2fE2/5sIZmWQuluYyjPQtrtTHdU1YzTZ7bAPN4sITq2xi1679w==}
+    dependencies:
+      '@actions/io': 1.1.3
+    dev: false
+
+  /@actions/glob@0.4.0:
+    resolution: {integrity: sha512-+eKIGFhsFa4EBwaf/GMyzCdWrXWymGXfFmZU3FHQvYS8mPcHtTtZONbkcqqUMzw9mJ/pImEBFET1JNifhqGsAQ==}
+    dependencies:
+      '@actions/core': 1.10.1
+      minimatch: 3.0.8
+    dev: false
+
   /@actions/http-client@2.2.1:
     resolution: {integrity: sha512-KhC/cZsq7f8I4LfZSJKgCvEwfkE8o1538VoBeoGzokVLLnbFDEAdFD3UhoMklxo2un9NJVBdANOresx7vTHlHw==}
     dependencies:
       tunnel: 0.0.6
       undici: 5.28.4
+    dev: false
+
+  /@actions/io@1.1.3:
+    resolution: {integrity: sha512-wi9JjgKLYS7U/z8PPbco+PvTb/nRWjeoFlJ1Qer83k/3C5PHQi28hiVdeE2kHXmIL99mQFawx8qt/JPjZilJ8Q==}
     dev: false
 
   /@ampproject/remapping@2.3.0:
@@ -5115,8 +5172,8 @@ packages:
       tslib: 2.3.1
     dev: false
 
-  /@azure/abort-controller@2.1.0:
-    resolution: {integrity: sha512-SYtcG13aiV7znycu6plCClWUzD9BBtfnsbIxT89nkkRvQRB4n0kuZyJJvJ7hqdKOn7x7YoGKZ9lVStLJpLnOFw==}
+  /@azure/abort-controller@2.1.2:
+    resolution: {integrity: sha512-nBrLsEWm4J2u5LpAPjxADTlq3trDgVZZXHNKabeXZtpq3d3AbN/KGO82R87rdDz5/lYB024rtEf10/q0urNgsA==}
     engines: {node: '>=18.0.0'}
     dependencies:
       tslib: 2.6.2
@@ -5126,7 +5183,7 @@ packages:
     resolution: {integrity: sha512-OuDVn9z2LjyYbpu6e7crEwSipa62jX7/ObV/pmXQfnOG8cHwm363jYtg3FSX3GB1V7jsIKri1zgq7mfXkFk/qw==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@azure/abort-controller': 2.1.0
+      '@azure/abort-controller': 2.1.2
       '@azure/core-util': 1.8.0
       tslib: 2.6.2
     dev: false
@@ -5135,7 +5192,7 @@ packages:
     resolution: {integrity: sha512-x50SSD7bbG5wen3tMDI2oWVSAjt1K1xw6JZSnc6239RmBwqLJF9dPsKsh9w0Rzh5+mGpsu9FDu3DlsT0lo1+Uw==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@azure/abort-controller': 2.1.0
+      '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.7.0
       '@azure/core-rest-pipeline': 1.15.0
       '@azure/core-tracing': 1.1.0
@@ -5172,7 +5229,7 @@ packages:
     resolution: {integrity: sha512-oj7d8vWEvOREIByH1+BnoiFwszzdE7OXUEd6UTv+cmx5HvjBBlkVezm3uZgpXWaxDj5ATL/k89+UMeGx1Ou9TQ==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@azure/abort-controller': 2.1.0
+      '@azure/abort-controller': 2.1.2
       '@azure/core-util': 1.8.0
       '@azure/logger': 1.1.0
       tslib: 2.6.2
@@ -5189,7 +5246,7 @@ packages:
     resolution: {integrity: sha512-6kBQwE75ZVlOjBbp0/PX0fgNLHxoMDxHe3aIPV/RLVwrIDidxTbsHtkSbPNTkheMset3v9s1Z08XuMNpWRK/7w==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@azure/abort-controller': 2.1.0
+      '@azure/abort-controller': 2.1.2
       '@azure/core-auth': 1.7.0
       '@azure/core-tracing': 1.1.0
       '@azure/core-util': 1.8.0
@@ -5220,7 +5277,7 @@ packages:
     resolution: {integrity: sha512-w8NrGnrlGDF7fj36PBnJhGXDK2Y3kpTOgL7Ksb5snEHXq/3EAbKYOp1yqme0yWCUlSDq5rjqvxSBAJmsqYac3w==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@azure/abort-controller': 2.1.0
+      '@azure/abort-controller': 2.1.2
       tslib: 2.6.2
     dev: false
 
@@ -5251,6 +5308,21 @@ packages:
     engines: {node: '>=18.0.0'}
     dependencies:
       tslib: 2.6.2
+    dev: false
+
+  /@azure/ms-rest-js@2.7.0:
+    resolution: {integrity: sha512-ngbzWbqF+NmztDOpLBVDxYM+XLcUj7nKhxGbSU9WtIsXfRB//cf2ZbAG5HkOrhU9/wd/ORRB6lM/d69RKVjiyA==}
+    dependencies:
+      '@azure/core-auth': 1.7.0
+      abort-controller: 3.0.0
+      form-data: 2.5.1
+      node-fetch: 2.6.7
+      tslib: 1.14.1
+      tunnel: 0.0.6
+      uuid: 8.3.2
+      xml2js: 0.5.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /@azure/msal-browser@3.17.0:
@@ -12910,7 +12982,6 @@ packages:
 
   /@types/uuid@8.3.4:
     resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
-    dev: true
 
   /@types/vscode@1.87.0:
     resolution: {integrity: sha512-y3yYJV2esWr8LNjp3VNbSMWG7Y43jC8pCldG8YwiHGAQbsymkkMMt0aDT1xZIOFM2eFcNiUc+dJMx1+Z0UT8fg==}
@@ -13613,6 +13684,13 @@ packages:
   /abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
     dev: true
+
+  /abort-controller@3.0.0:
+    resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
+    engines: {node: '>=6.5'}
+    dependencies:
+      event-target-shim: 5.0.1
+    dev: false
 
   /abstract-logging@2.0.1:
     resolution: {integrity: sha512-2BjRTZxTPvheOvGbBslFSYOUkr+SjPtOnrLP33f+VIWLzezQpZcqVg7ja3L4dBXmzzgwT+a029jRx5PCi3JuiA==}
@@ -17698,6 +17776,11 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
+  /event-target-shim@5.0.1:
+    resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
+    engines: {node: '>=6'}
+    dev: false
+
   /eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
@@ -18271,6 +18354,15 @@ packages:
       typescript: 5.4.2
       webpack: 4.47.0(webpack-cli@3.3.12)
     dev: true
+
+  /form-data@2.5.1:
+    resolution: {integrity: sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==}
+    engines: {node: '>= 0.12'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
 
   /form-data@3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
