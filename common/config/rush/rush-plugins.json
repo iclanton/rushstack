@@ -25,5 +25,11 @@
     //    */
     //   "autoinstallerName": "rush-plugins"
     // }
+
+    {
+      "packageName": "@rushstack/rush-github-actions-cache-plugin",
+      "pluginName": "rush-github-actions-cache-plugin",
+      "autoinstallerName": "rush-plugins"
+    }
   ]
 }
