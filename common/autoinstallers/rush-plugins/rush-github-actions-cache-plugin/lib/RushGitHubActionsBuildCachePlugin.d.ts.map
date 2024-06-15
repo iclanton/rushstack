@@ -1,0 +1,1 @@
+{"version":3,"file":"RushGitHubActionsBuildCachePlugin.d.ts","sourceRoot":"","sources":["../src/RushGitHubActionsBuildCachePlugin.ts"],"names":[],"mappings":"AAGA,OAAO,KAAK,EAAE,WAAW,EAAE,WAAW,EAAE,iBAAiB,EAAE,MAAM,qBAAqB,CAAC;AAIvF;;GAEG;AACH,qBAAa,iCAAkC,YAAW,WAAW;IACnE,SAAgB,UAAU,EAAE,MAAM,CAAe;IAE1C,KAAK,CAAC,WAAW,EAAE,WAAW,EAAE,iBAAiB,EAAE,iBAAiB,GAAG,IAAI;CAQnF"}
