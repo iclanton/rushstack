@@ -3,6 +3,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/approved-packages.schema.json",
   "packages": [
     {
+      "name": "@actions/http-client",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@aws-sdk/client-sso-oidc",
       "allowedCategories": [ "tests" ]
     },
@@ -862,7 +866,6 @@
       "name": "tslint",
       "allowedCategories": [ "libraries", "tests" ]
     },
-
     {
       "name": "typescript",
       "allowedCategories": [ "libraries", "tests", "vscode-extensions" ]
