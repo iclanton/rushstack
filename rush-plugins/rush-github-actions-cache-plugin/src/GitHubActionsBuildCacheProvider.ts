@@ -31,7 +31,6 @@ export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider
       [cacheId],
       [cacheId]
     );
-    terminal.writeLine(`Restore cache data for ${cacheId}: ${JSON.stringify(getCacheEntryResult)}`);
     const archiveLocation: string | undefined = getCacheEntryResult?.archiveLocation;
     if (archiveLocation) {
       return await cacheHttpClient.downloadCacheToBuffer(archiveLocation);
@@ -49,8 +48,6 @@ export class GitHubActionsBuildCacheProvider implements ICloudBuildCacheProvider
         await cacheHttpClient.reserveCache(cacheId, [cacheId], {
           cacheSize: archiveFileSize
         });
-
-      terminal.writeLine(`Reserve cache data for ${cacheId}: ${JSON.stringify(reserveCacheResponse)}`);
 
       const newCacheId: number | undefined = reserveCacheResponse?.result?.cacheId;
       if (newCacheId) {
