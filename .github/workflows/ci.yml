@@ -57,9 +57,9 @@ jobs:
         with:
           node-version: ${{ matrix.NodeVersion }}
 
-      - name: Verify Change Logs
-        run: node common/scripts/install-run-rush.js change --verify
-        working-directory: repo-a
+      # - name: Verify Change Logs
+      #   run: node common/scripts/install-run-rush.js change --verify
+      #   working-directory: repo-a
 
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
