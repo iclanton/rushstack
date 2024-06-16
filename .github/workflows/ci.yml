@@ -72,7 +72,8 @@ jobs:
       #   working-directory: repo-a
 
       - name: Rush retest (install-run-rush)
-        run: node --inspect-brk common/temp/install-run/@microsoft+rush@5.125.0/node_modules/@microsoft/rush-lib/lib/start build
+        run: node common/scripts/install-run-rush.js build
+        # run: node --inspect-brk common/temp/install-run/@microsoft+rush@5.125.0/node_modules/@microsoft/rush-lib/lib/start build
         working-directory: repo-a
 
       - name: Ensure repo README is up-to-date
