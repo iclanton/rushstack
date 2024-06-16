@@ -11,33 +11,33 @@ jobs:
     strategy:
       matrix:
         include:
-          # - NodeVersion: 16.20.x
-          #   NodeVersionDisplayName: 16
-          #   OS: ubuntu-latest
-          # - NodeVersion: 18.18.x
-          #   NodeVersionDisplayName: 18
-          #   OS: ubuntu-latest
+          - NodeVersion: 16.20.x
+            NodeVersionDisplayName: 16
+            OS: ubuntu-latest
+          - NodeVersion: 18.18.x
+            NodeVersionDisplayName: 18
+            OS: ubuntu-latest
           - NodeVersion: 20.9.x
             NodeVersionDisplayName: 20
             OS: ubuntu-latest
-          # - NodeVersion: 18.18.x
-          #   NodeVersionDisplayName: 18
-          #   OS: windows-latest
+          - NodeVersion: 18.18.x
+            NodeVersionDisplayName: 18
+            OS: windows-latest
     name: Node.js v${{ matrix.NodeVersionDisplayName }} (${{ matrix.OS }})
-    runs-on: self-hosted
+    runs-on: ${{ matrix.OS }}
     steps:
-      # - name: Create ~/.rush-user/settings.json
-      #   shell: pwsh
-      #   # Create a .rush-user/settings.json file that looks like this:
-      #   #
-      #   # { "buildCacheFolder": "/<runner working directory>/rush-cache" }
-      #   #
-      #   # This configures the local cache to be shared between all Rush repos. This allows us to run a build in
-      #   # one clone of the repo (repo-a), and restore from the cache in another clone of the repo (repo-b) to test
-      #   # the build cache.
-      #   run: |
-      #     mkdir -p $HOME/.rush-user
-      #     @{ buildCacheFolder = Join-Path ${{ github.workspace }} rush-cache } | ConvertTo-Json > $HOME/.rush-user/settings.json
+      - name: Create ~/.rush-user/settings.json
+        shell: pwsh
+        # Create a .rush-user/settings.json file that looks like this:
+        #
+        # { "buildCacheFolder": "/<runner working directory>/rush-cache" }
+        #
+        # This configures the local cache to be shared between all Rush repos. This allows us to run a build in
+        # one clone of the repo (repo-a), and restore from the cache in another clone of the repo (repo-b) to test
+        # the build cache.
+        run: |
+          mkdir -p $HOME/.rush-user
+          @{ buildCacheFolder = Join-Path ${{ github.workspace }} rush-cache } | ConvertTo-Json > $HOME/.rush-user/settings.json
 
       - name: Set cache environment variables
         uses: gigara/rush-cache@v2
@@ -46,7 +46,6 @@ jobs:
         with:
           fetch-depth: 2
           path: repo-a
-          clean: false
 
       - name: Git config user
         run: |
@@ -58,9 +57,9 @@ jobs:
         with:
           node-version: ${{ matrix.NodeVersion }}
 
-      # - name: Verify Change Logs
-      #   run: node common/scripts/install-run-rush.js change --verify
-      #   working-directory: repo-a
+      - name: Verify Change Logs
+        run: node common/scripts/install-run-rush.js change --verify
+        working-directory: repo-a
 
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
@@ -71,9 +70,8 @@ jobs:
       #   run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       #   working-directory: repo-a
 
-      - name: Rush retest (install-run-rush)
-        run: node common/scripts/install-run-rush.js build
-        # run: node --inspect-brk common/temp/install-run/@microsoft+rush@5.125.0/node_modules/@microsoft/rush-lib/lib/start build
+      - name: Rush test (install-run-rush)
+        run: node common/scripts/install-run-rush.js test --verbose --production
         working-directory: repo-a
 
       - name: Ensure repo README is up-to-date
@@ -85,7 +83,6 @@ jobs:
         with:
           fetch-depth: 1
           path: repo-b
-          clean: false
 
       - name: Git config user
         run: |
