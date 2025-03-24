@@ -30,8 +30,8 @@ const classPrototypeUuidSymbol: symbol = Symbol.for('TypeUuid.classPrototypeUuid
  * ```
  * // Example usage:
  * ```ts
- * import { Widget as Widget1 } from 'v1-of-library';
- * import { Widget as Widget2 } from 'v2-of-library';
+ * import { Widget as Widget1 } from 'node:v1-of-library';
+ * import { Widget as Widget2 } from 'node:v2-of-library';
  * const widget = new Widget2();
  * console.log(widget instanceof Widget1); // prints true
  * ```

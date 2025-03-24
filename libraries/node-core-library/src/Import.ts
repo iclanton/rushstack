@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import * as path from 'path';
-import importLazy = require('import-lazy');
+import path from 'node:path';
+import nodeModule from 'node:module';
+import importLazy from 'import-lazy';
 import * as Resolve from 'resolve';
-import nodeModule = require('module');
 
 import { PackageJsonLookup } from './PackageJsonLookup';
 import { FileSystem } from './FileSystem';
@@ -170,7 +170,7 @@ export class Import {
    * package.  It enables you to replace an import like this:
    *
    * ```ts
-   * import * as example from 'example'; // <-- 100ms load time
+   * import example from 'node:example'; // <-- 100ms load time
    *
    * if (condition) {
    *   example.doSomething();
@@ -202,7 +202,7 @@ export class Import {
    *
    * ```ts
    * const example: typeof import('example') = Import.lazy('example', require);
-   * import type * as exampleTypes from 'example';
+   * import type * as exampleTypes from 'node:example';
    * ```
    *
    * - If the imported module confusingly has the same name as its export, then use the Module suffix:
@@ -222,8 +222,8 @@ export class Import {
    *
    * ```ts
    * // 1. external imports
-   * import * as path from 'path';
-   * import { Import, JsonFile, JsonObject } from '@rushstack/node-core-library';
+   * import path from 'node:path';
+   * import { Import, JsonFile, JsonObject } from 'node:@rushstack/node-core-library';
    *
    * // 2. local imports
    * import { LocalFile } from './path/LocalFile';
