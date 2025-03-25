@@ -6,9 +6,11 @@
 
 /// <reference types="node" />
 
-import * as child_process from 'child_process';
-import * as nodeFs from 'fs';
-import * as nodePath from 'path';
+import child_process from 'node:child_process';
+import type * as child_process_2 from 'node:child_process';
+import fs from 'node:fs';
+import nodeFs from 'node:fs';
+import nodePath from 'node:path';
 
 // @public
 export enum AlreadyExistsBehavior {
@@ -214,7 +216,7 @@ export type FileSystemCopyFilesAsyncFilter = (sourcePath: string, destinationPat
 export type FileSystemCopyFilesFilter = (sourcePath: string, destinationPath: string) => boolean;
 
 // @public
-export type FileSystemStats = nodeFs.Stats;
+export type FileSystemStats = fs.Stats;
 
 // @public
 export class FileWriter {
@@ -232,7 +234,7 @@ export const FolderConstants: {
 };
 
 // @public
-export type FolderItem = nodeFs.Dirent;
+export type FolderItem = fs.Dirent;
 
 // @public
 export interface IAsyncParallelismOptions {
@@ -870,8 +872,8 @@ export class StringBuilder implements IStringBuilder {
 
 // @beta
 export class SubprocessTerminator {
-    static killProcessTree(subprocess: child_process.ChildProcess, subprocessOptions: ISubprocessOptions): void;
-    static killProcessTreeOnExit(subprocess: child_process.ChildProcess, subprocessOptions: ISubprocessOptions): void;
+    static killProcessTree(subprocess: child_process_2.ChildProcess, subprocessOptions: ISubprocessOptions): void;
+    static killProcessTreeOnExit(subprocess: child_process_2.ChildProcess, subprocessOptions: ISubprocessOptions): void;
     static readonly RECOMMENDED_OPTIONS: ISubprocessOptions;
 }
 

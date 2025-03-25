@@ -387,7 +387,7 @@ export class FileSystem {
    */
   public static exists(path: string): boolean {
     return FileSystem._wrapException(() => {
-      return fsx.existsSync(path);
+      return fs.existsSync(path);
     });
   }
 
@@ -395,10 +395,17 @@ export class FileSystem {
    * An async version of {@link FileSystem.exists}.
    */
   public static async existsAsync(path: string): Promise<boolean> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return new Promise<boolean>((resolve: (result: boolean) => void) => {
-        fsx.exists(path, resolve);
-      });
+    return await FileSystem._wrapExceptionAsync(async () => {
+      try {
+        await fsPromises.stat(path);
+        return true;
+      } catch (e) {
+        if (FileSystem.isNotExistError(e)) {
+          return false;
+        } else {
+          throw e;
+        }
+      }
     });
   }
 
@@ -410,7 +417,7 @@ export class FileSystem {
    */
   public static getStatistics(path: string): FileSystemStats {
     return FileSystem._wrapException(() => {
-      return fsx.statSync(path);
+      return fs.statSync(path);
     });
   }
 
@@ -418,8 +425,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.getStatistics}.
    */
   public static async getStatisticsAsync(path: string): Promise<FileSystemStats> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return fsx.stat(path);
+    return await FileSystem._wrapExceptionAsync(async () => {
+      return await fsPromises.stat(path);
     });
   }
 
@@ -431,8 +438,8 @@ export class FileSystem {
    * @param times - The times that the object should be updated to reflect.
    */
   public static updateTimes(path: string, times: IFileSystemUpdateTimeParameters): void {
-    return FileSystem._wrapException(() => {
-      fsx.utimesSync(path, times.accessedTime, times.modifiedTime);
+    FileSystem._wrapException(() => {
+      fs.utimesSync(path, times.accessedTime, times.modifiedTime);
     });
   }
 
@@ -440,10 +447,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.updateTimes}.
    */
   public static async updateTimesAsync(path: string, times: IFileSystemUpdateTimeParameters): Promise<void> {
-    await FileSystem._wrapExceptionAsync(() => {
-      // This cast is needed because the fs-extra typings require both parameters
-      // to have the same type (number or Date), whereas Node.js does not require that.
-      return fsx.utimes(path, times.accessedTime as number, times.modifiedTime as number);
+    await FileSystem._wrapExceptionAsync(async () => {
+      await fsPromises.utimes(path, times.accessedTime, times.modifiedTime);
     });
   }
 
@@ -463,8 +468,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.changePosixModeBits}.
    */
   public static async changePosixModeBitsAsync(path: string, mode: PosixModeBits): Promise<void> {
-    await FileSystem._wrapExceptionAsync(() => {
-      return fsx.chmod(path, mode);
+    await FileSystem._wrapExceptionAsync(async () => {
+      await fsPromises.chmod(path, mode);
     });
   }
 
@@ -614,7 +619,7 @@ export class FileSystem {
         ...options
       };
 
-      const fileNames: string[] = fsx.readdirSync(folderPath);
+      const fileNames: string[] = fs.readdirSync(folderPath);
       if (options.absolutePaths) {
         return fileNames.map((fileName) => nodeJsPath.resolve(folderPath, fileName));
       } else {
@@ -636,7 +641,7 @@ export class FileSystem {
         ...options
       };
 
-      const fileNames: string[] = await fsx.readdir(folderPath);
+      const fileNames: string[] = await fsPromises.readdir(folderPath);
       if (options.absolutePaths) {
         return fileNames.map((fileName) => nodeJsPath.resolve(folderPath, fileName));
       } else {
@@ -659,7 +664,7 @@ export class FileSystem {
         ...options
       };
 
-      const folderEntries: FolderItem[] = fsx.readdirSync(folderPath, { withFileTypes: true });
+      const folderEntries: FolderItem[] = fs.readdirSync(folderPath, { withFileTypes: true });
       if (options.absolutePaths) {
         return folderEntries.map((folderEntry) => {
           folderEntry.name = nodeJsPath.resolve(folderPath, folderEntry.name);
@@ -770,7 +775,7 @@ export class FileSystem {
       }
 
       try {
-        fsx.writeFileSync(filePath, contents, { encoding: options.encoding });
+        fs.writeFileSync(filePath, contents, { encoding: options.encoding });
       } catch (error) {
         if (options.ensureFolderExists) {
           if (!FileSystem.isNotExistError(error as Error)) {
@@ -779,7 +784,7 @@ export class FileSystem {
 
           const folderPath: string = nodeJsPath.dirname(filePath);
           FileSystem.ensureFolder(folderPath);
-          fsx.writeFileSync(filePath, contents, { encoding: options.encoding });
+          fs.writeFileSync(filePath, contents, { encoding: options.encoding });
         } else {
           throw error;
         }
@@ -812,7 +817,7 @@ export class FileSystem {
 
       let fd: number | undefined;
       try {
-        fd = fsx.openSync(filePath, 'w');
+        fd = fs.openSync(filePath, 'w');
       } catch (error) {
         if (!options?.ensureFolderExists || !FileSystem.isNotExistError(error as Error)) {
           throw error;
@@ -820,14 +825,14 @@ export class FileSystem {
 
         const folderPath: string = nodeJsPath.dirname(filePath);
         FileSystem.ensureFolder(folderPath);
-        fd = fsx.openSync(filePath, 'w');
+        fd = fs.openSync(filePath, 'w');
       }
 
       try {
         // In practice this loop will have exactly 1 iteration, but the spec allows
         // for a writev call to write fewer bytes than requested
         while (toCopy.length) {
-          let bytesWritten: number = fsx.writevSync(fd, toCopy);
+          let bytesWritten: number = fs.writevSync(fd, toCopy);
           let buffersWritten: number = 0;
           while (buffersWritten < toCopy.length) {
             const bytesInCurrentBuffer: number = toCopy[buffersWritten].byteLength;
@@ -851,7 +856,7 @@ export class FileSystem {
           }
         }
       } finally {
-        fsx.closeSync(fd);
+        fs.closeSync(fd);
       }
     });
   }
@@ -875,7 +880,7 @@ export class FileSystem {
       }
 
       try {
-        await fsx.writeFile(filePath, contents, { encoding: options.encoding });
+        await fsPromises.writeFile(filePath, contents, { encoding: options.encoding });
       } catch (error) {
         if (options.ensureFolderExists) {
           if (!FileSystem.isNotExistError(error as Error)) {
@@ -884,7 +889,7 @@ export class FileSystem {
 
           const folderPath: string = nodeJsPath.dirname(filePath);
           await FileSystem.ensureFolderAsync(folderPath);
-          await fsx.writeFile(filePath, contents, { encoding: options.encoding });
+          await fsPromises.writeFile(filePath, contents, { encoding: options.encoding });
         } else {
           throw error;
         }
@@ -976,7 +981,7 @@ export class FileSystem {
       }
 
       try {
-        fsx.appendFileSync(filePath, contents, { encoding: options.encoding });
+        fs.appendFileSync(filePath, contents, { encoding: options.encoding });
       } catch (error) {
         if (options.ensureFolderExists) {
           if (!FileSystem.isNotExistError(error as Error)) {
@@ -985,7 +990,7 @@ export class FileSystem {
 
           const folderPath: string = nodeJsPath.dirname(filePath);
           FileSystem.ensureFolder(folderPath);
-          fsx.appendFileSync(filePath, contents, { encoding: options.encoding });
+          fs.appendFileSync(filePath, contents, { encoding: options.encoding });
         } else {
           throw error;
         }
@@ -1012,7 +1017,7 @@ export class FileSystem {
       }
 
       try {
-        await fsx.appendFile(filePath, contents, { encoding: options.encoding });
+        await fsPromises.appendFile(filePath, contents, { encoding: options.encoding });
       } catch (error) {
         if (options.ensureFolderExists) {
           if (!FileSystem.isNotExistError(error as Error)) {
@@ -1021,7 +1026,7 @@ export class FileSystem {
 
           const folderPath: string = nodeJsPath.dirname(filePath);
           await FileSystem.ensureFolderAsync(folderPath);
-          await fsx.appendFile(filePath, contents, { encoding: options.encoding });
+          await fsPromises.appendFile(filePath, contents, { encoding: options.encoding });
         } else {
           throw error;
         }
@@ -1077,7 +1082,7 @@ export class FileSystem {
    */
   public static readFileToBuffer(filePath: string): Buffer {
     return FileSystem._wrapException(() => {
-      return fsx.readFileSync(filePath);
+      return fs.readFileSync(filePath);
     });
   }
 
@@ -1085,8 +1090,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.readFileToBuffer}.
    */
   public static async readFileToBufferAsync(filePath: string): Promise<Buffer> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return fsx.readFile(filePath);
+    return await FileSystem._wrapExceptionAsync(async () => {
+      return await fsPromises.readFile(filePath);
     });
   }
 
@@ -1204,7 +1209,7 @@ export class FileSystem {
       };
 
       try {
-        fsx.unlinkSync(filePath);
+        fs.unlinkSync(filePath);
       } catch (error) {
         if (options.throwIfNotExists || !FileSystem.isNotExistError(error as Error)) {
           throw error;
@@ -1227,7 +1232,7 @@ export class FileSystem {
       };
 
       try {
-        await fsx.unlink(filePath);
+        await fsPromises.unlink(filePath);
       } catch (error) {
         if (options.throwIfNotExists || !FileSystem.isNotExistError(error as Error)) {
           throw error;
@@ -1247,7 +1252,7 @@ export class FileSystem {
    */
   public static getLinkStatistics(path: string): FileSystemStats {
     return FileSystem._wrapException(() => {
-      return fsx.lstatSync(path);
+      return fs.lstatSync(path);
     });
   }
 
@@ -1255,8 +1260,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.getLinkStatistics}.
    */
   public static async getLinkStatisticsAsync(path: string): Promise<FileSystemStats> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return fsx.lstat(path);
+    return await FileSystem._wrapExceptionAsync(async () => {
+      return await fsPromises.lstat(path);
     });
   }
 
@@ -1273,7 +1278,7 @@ export class FileSystem {
    */
   public static readLink(path: string): string {
     return FileSystem._wrapException(() => {
-      return fsx.readlinkSync(path);
+      return fs.readlinkSync(path);
     });
   }
 
@@ -1281,8 +1286,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.readLink}.
    */
   public static async readLinkAsync(path: string): Promise<string> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return fsx.readlink(path);
+    return await FileSystem._wrapExceptionAsync(async () => {
+      return await fsPromises.readlink(path);
     });
   }
 
@@ -1307,7 +1312,7 @@ export class FileSystem {
     FileSystem._wrapException(() => {
       return FileSystem._handleLink(() => {
         // For directories, we use a Windows "junction".  On POSIX operating systems, this produces a regular symlink.
-        return fsx.symlinkSync(options.linkTargetPath, options.newLinkPath, 'junction');
+        return fs.symlinkSync(options.linkTargetPath, options.newLinkPath, 'junction');
       }, options);
     });
   }
@@ -1317,9 +1322,9 @@ export class FileSystem {
    */
   public static async createSymbolicLinkJunctionAsync(options: IFileSystemCreateLinkOptions): Promise<void> {
     await FileSystem._wrapExceptionAsync(() => {
-      return FileSystem._handleLinkAsync(() => {
+      return FileSystem._handleLinkAsync(async () => {
         // For directories, we use a Windows "junction".  On POSIX operating systems, this produces a regular symlink.
-        return fsx.symlink(options.linkTargetPath, options.newLinkPath, 'junction');
+        return await fsPromises.symlink(options.linkTargetPath, options.newLinkPath, 'junction');
       }, options);
     });
   }
@@ -1340,7 +1345,7 @@ export class FileSystem {
   public static createSymbolicLinkFile(options: IFileSystemCreateLinkOptions): void {
     FileSystem._wrapException(() => {
       return FileSystem._handleLink(() => {
-        return fsx.symlinkSync(options.linkTargetPath, options.newLinkPath, 'file');
+        return fs.symlinkSync(options.linkTargetPath, options.newLinkPath, 'file');
       }, options);
     });
   }
@@ -1349,9 +1354,9 @@ export class FileSystem {
    * An async version of {@link FileSystem.createSymbolicLinkFile}.
    */
   public static async createSymbolicLinkFileAsync(options: IFileSystemCreateLinkOptions): Promise<void> {
-    await FileSystem._wrapExceptionAsync(() => {
-      return FileSystem._handleLinkAsync(() => {
-        return fsx.symlink(options.linkTargetPath, options.newLinkPath, 'file');
+    await FileSystem._wrapExceptionAsync(async () => {
+      return await FileSystem._handleLinkAsync(async () => {
+        return fsPromises.symlink(options.linkTargetPath, options.newLinkPath, 'file');
       }, options);
     });
   }
@@ -1372,7 +1377,7 @@ export class FileSystem {
   public static createSymbolicLinkFolder(options: IFileSystemCreateLinkOptions): void {
     FileSystem._wrapException(() => {
       return FileSystem._handleLink(() => {
-        return fsx.symlinkSync(options.linkTargetPath, options.newLinkPath, 'dir');
+        return fs.symlinkSync(options.linkTargetPath, options.newLinkPath, 'dir');
       }, options);
     });
   }
@@ -1381,9 +1386,9 @@ export class FileSystem {
    * An async version of {@link FileSystem.createSymbolicLinkFolder}.
    */
   public static async createSymbolicLinkFolderAsync(options: IFileSystemCreateLinkOptions): Promise<void> {
-    await FileSystem._wrapExceptionAsync(() => {
-      return FileSystem._handleLinkAsync(() => {
-        return fsx.symlink(options.linkTargetPath, options.newLinkPath, 'dir');
+    await FileSystem._wrapExceptionAsync(async () => {
+      await FileSystem._handleLinkAsync(async () => {
+        await fsPromises.symlink(options.linkTargetPath, options.newLinkPath, 'dir');
       }, options);
     });
   }
@@ -1406,9 +1411,9 @@ export class FileSystem {
    */
   public static createHardLink(options: IFileSystemCreateLinkOptions): void {
     FileSystem._wrapException(() => {
-      return FileSystem._handleLink(
+      FileSystem._handleLink(
         () => {
-          return fsx.linkSync(options.linkTargetPath, options.newLinkPath);
+          return fs.linkSync(options.linkTargetPath, options.newLinkPath);
         },
         { ...options, linkTargetMustExist: true }
       );
@@ -1419,10 +1424,10 @@ export class FileSystem {
    * An async version of {@link FileSystem.createHardLink}.
    */
   public static async createHardLinkAsync(options: IFileSystemCreateLinkOptions): Promise<void> {
-    await FileSystem._wrapExceptionAsync(() => {
-      return FileSystem._handleLinkAsync(
-        () => {
-          return fsx.link(options.linkTargetPath, options.newLinkPath);
+    await FileSystem._wrapExceptionAsync(async () => {
+      await FileSystem._handleLinkAsync(
+        async () => {
+          await fsPromises.link(options.linkTargetPath, options.newLinkPath);
         },
         { ...options, linkTargetMustExist: true }
       );
@@ -1436,7 +1441,7 @@ export class FileSystem {
    */
   public static getRealPath(linkPath: string): string {
     return FileSystem._wrapException(() => {
-      return fsx.realpathSync(linkPath);
+      return fs.realpathSync(linkPath);
     });
   }
 
@@ -1444,8 +1449,8 @@ export class FileSystem {
    * An async version of {@link FileSystem.getRealPath}.
    */
   public static async getRealPathAsync(linkPath: string): Promise<string> {
-    return await FileSystem._wrapExceptionAsync(() => {
-      return fsx.realpath(linkPath);
+    return await FileSystem._wrapExceptionAsync(async () => {
+      return await fsPromises.realpath(linkPath);
     });
   }
 

@@ -9,7 +9,7 @@ const ensureDirSync: jest.Mock<{}> = jest.fn();
 const openSync: jest.Mock<{}> = jest.fn();
 const writevSync: jest.Mock<{}> = jest.fn();
 
-jest.mock('fs-extra', () => {
+jest.mock('fs', () => {
   return {
     closeSync,
     ensureDir,
