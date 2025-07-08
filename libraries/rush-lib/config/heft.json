@@ -12,6 +12,16 @@
       "cleanFiles": [{ "includeGlobs": ["lib-esnext"] }],
 
       "tasksByName": {
+        "json-schema-typings": {
+          "taskPlugin": {
+            "pluginPackage": "@rushstack/heft-json-schema-typings-plugin",
+            "pluginName": "json-schema-typings-plugin",
+            "options": {
+              "generatedTsFolders": ["temp/schema-ts", "lib", "lib-commonjs"]
+            }
+          }
+        },
+
         "copy-mock-flush-telemetry-plugin": {
           "taskDependencies": ["typescript"],
           "taskPlugin": {
