@@ -180,7 +180,7 @@
     },
     {
       "name": "@rushstack/heft-json-schema-typings-plugin",
-      "allowedCategories": [ "tests" ]
+      "allowedCategories": [ "libraries", "tests" ]
     },
     {
       "name": "@rushstack/heft-lint-plugin",
