@@ -16,6 +16,10 @@
               "generatedTsFolders": ["temp/schema-ts", "lib"]
             }
           }
+        },
+
+        "typescript": {
+          "taskDependencies": ["json-schema-typings"]
         }
       }
     }
