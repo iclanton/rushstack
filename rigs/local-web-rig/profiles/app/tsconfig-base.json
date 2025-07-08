@@ -12,7 +12,7 @@
 
     "outDir": "../../../../lib",
     "rootDir": "../../../../src",
-    "rootDirs": ["../../../../src", "../../../../temp/sass-ts"],
+    "rootDirs": ["../../../../src", "../../../../temp/sass-ts", "../../../../temp/schema-ts"],
 
     "types": ["heft-jest", "webpack-env"],
     "typeRoots": ["../../../../node_modules/@types", "../../node_modules/@types"]
