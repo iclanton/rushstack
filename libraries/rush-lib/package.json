@@ -29,8 +29,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@pnpm/dependency-path-lockfile-pre-v9": "npm:@pnpm/dependency-path@~2.1.2",
     "@pnpm/dependency-path-lockfile-pre-v10": "npm:@pnpm/dependency-path@~5.1.7",
+    "@pnpm/dependency-path-lockfile-pre-v9": "npm:@pnpm/dependency-path@~2.1.2",
     "@pnpm/dependency-path": "~1000.0.9",
     "@pnpm/link-bins": "~5.3.7",
     "@rushstack/heft-config-file": "workspace:*",
@@ -65,13 +65,13 @@
     "strict-uri-encode": "~2.0.0",
     "tapable": "2.2.1",
     "tar": "~6.2.1",
-    "true-case-path": "~2.2.1"
+    "true-case-path": "~2.2.1",
+    "uuid": "~8.3.2"
   },
   "devDependencies": {
     "@pnpm/lockfile.types": "~1.0.3",
     "@pnpm/logger": "4.0.0",
-    "eslint": "~9.25.1",
-    "local-node-rig": "workspace:*",
+    "@rushstack/heft-json-schema-typings-plugin": "workspace:*",
     "@rushstack/heft-webpack5-plugin": "workspace:*",
     "@rushstack/heft": "workspace:*",
     "@rushstack/operation-graph": "workspace:*",
@@ -87,6 +87,8 @@
     "@types/strict-uri-encode": "2.0.0",
     "@types/tar": "6.1.6",
     "@types/webpack-env": "1.18.8",
+    "eslint": "~9.25.1",
+    "local-node-rig": "workspace:*",
     "webpack": "~5.98.0"
   },
   "publishOnlyDependencies": {
