@@ -4028,6 +4028,9 @@ importers:
       '@rushstack/heft':
         specifier: 0.74.0
         version: 0.74.0(@types/node@20.17.19)
+      '@rushstack/heft-json-schema-typings-plugin':
+        specifier: 0.1.0
+        version: 0.1.0(@rushstack/heft@0.74.0)(@types/node@20.17.19)
       '@rushstack/heft-node-rig':
         specifier: 2.9.0
         version: 2.9.0(@rushstack/heft@0.74.0)(@types/node@20.17.19)
@@ -11326,6 +11329,19 @@ packages:
       - ts-node
     dev: false
 
+  /@rushstack/heft-json-schema-typings-plugin@0.1.0(@rushstack/heft@0.74.0)(@types/node@20.17.19):
+    resolution: {integrity: sha512-Uvms+2lhjEAIZOb08zQ9q94cIY5nY9Sv/gDuePvitXVogTqzV0Raqg8P3H0zf4BPZZqIsReQxtcMbfYhFDuSnA==}
+    peerDependencies:
+      '@rushstack/heft': '*'
+    dependencies:
+      '@rushstack/heft': 0.74.0(@types/node@20.17.19)
+      '@rushstack/node-core-library': 5.13.1(@types/node@20.17.19)
+      '@rushstack/typings-generator': 0.14.40(@types/node@20.17.19)
+      json-schema-to-typescript: 15.0.4
+    transitivePeerDependencies:
+      - '@types/node'
+    dev: false
+
   /@rushstack/heft-lint-plugin@0.7.0(@rushstack/heft@0.74.0)(@types/node@20.17.19):
     resolution: {integrity: sha512-hGokJd9zBVktUBPXU8+xfg8VzfxNkh7dnDOydWoELN2Ws0OjAEX6zrD/ZY+rBzkMH1SrZ1SxOWnzd3FpgH13Aw==}
     peerDependencies:
@@ -11492,6 +11508,21 @@ packages:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
+
+  /@rushstack/typings-generator@0.14.40(@types/node@20.17.19):
+    resolution: {integrity: sha512-o+P8pmY/ice+3iZMOcUEm+dX8EHfbV8uCsG4q18m4PAGzfYWgQTfUlNtvBlqEfo9vUHjQK8+OKVc25xzxbIYhg==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+    dependencies:
+      '@rushstack/node-core-library': 5.13.1(@types/node@20.17.19)
+      '@rushstack/terminal': 0.15.3(@types/node@20.17.19)
+      '@types/node': 20.17.19
+      chokidar: 3.6.0
+      fast-glob: 3.3.2
+    dev: false
 
   /@rushstack/webpack-plugin-utilities@0.3.16(@types/webpack@4.41.32)(webpack@4.47.0):
     resolution: {integrity: sha512-0Xb0GESYEyv6Q7hzANZ8RIWa3seiJiCKBNNG83znQwMZ9l0bfnoJzZ3cYODkofoK0E8/nr4hTsn/pWKommf6Mw==}
