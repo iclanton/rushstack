@@ -36,6 +36,7 @@ import type { ITerminal } from '@rushstack/terminal';
 import type { IHeftJestReporterOptions } from './HeftJestReporter';
 import { jestResolve } from './JestUtils';
 import { TerminalWritableStream } from './TerminalWritableStream';
+import type { HeftJestPluginOptionsConfiguration } from './schemas/heft-jest-plugin-options.schema.json.d.ts';
 import anythingSchema from './schemas/anything.schema.json';
 
 const jestPluginSymbol: unique symbol = Symbol('heft-jest-plugin');
@@ -89,13 +90,10 @@ interface IJestResolutionOptions {
 /**
  * Options that can be provided to the plugin.
  */
-export interface IJestPluginOptions {
-  configurationPath?: string;
+export interface IJestPluginOptions extends HeftJestPluginOptionsConfiguration {
   debugHeftReporter?: boolean;
   detectOpenHandles?: boolean;
   disableCodeCoverage?: boolean;
-  disableConfigurationModuleResolution?: boolean;
-  enableNodeEnvManagement?: boolean;
   findRelatedTests?: string[];
   maxWorkers?: string;
   passWithNoTests?: boolean;
