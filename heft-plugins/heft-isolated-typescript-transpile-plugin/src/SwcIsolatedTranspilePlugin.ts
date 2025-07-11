@@ -32,18 +32,15 @@ import type {
 } from '@swc/core';
 import { SyncWaterfallHook } from 'tapable';
 
-import type {
-  ISwcIsolatedTranspileOptions,
-  IWorkerResult,
-  ITransformTask,
-  IEmitKind,
-  ITransformModulesRequestMessage
-} from './types';
+import type { SwcIsolatedTranspilePluginOptions } from './schemas/swc-isolated-transpile-plugin-options.schema.json.d.ts';
+import type { IWorkerResult, ITransformTask, ITransformModulesRequestMessage } from './types';
 
 /**
  * @public
  */
 export type ModuleKind = keyof typeof TTypeScript.ModuleKind;
+
+type IEmitKind = Required<SwcIsolatedTranspilePluginOptions>['emitKinds'][number];
 
 const TSC_TO_SWC_MODULE_MAP: Record<ModuleKind, ModuleConfig['type'] | undefined> = {
   CommonJS: 'commonjs',
@@ -104,7 +101,9 @@ export interface ISwcIsolatedTranspilePluginAccessor {
 /**
  * @public
  */
-export default class SwcIsolatedTranspilePlugin implements IHeftTaskPlugin<ISwcIsolatedTranspileOptions> {
+export default class SwcIsolatedTranspilePlugin
+  implements IHeftTaskPlugin<SwcIsolatedTranspilePluginOptions>
+{
   /**
    * @beta
    */
@@ -121,7 +120,7 @@ export default class SwcIsolatedTranspilePlugin implements IHeftTaskPlugin<ISwcI
   public apply(
     heftSession: IHeftTaskSession,
     heftConfiguration: HeftConfiguration,
-    pluginOptions: ISwcIsolatedTranspileOptions = {}
+    pluginOptions: SwcIsolatedTranspilePluginOptions = {}
   ): void {
     heftSession.hooks.run.tapPromise(PLUGIN_NAME, async () => {
       const { logger } = heftSession;
@@ -145,7 +144,7 @@ export default class SwcIsolatedTranspilePlugin implements IHeftTaskPlugin<ISwcI
 
 async function transpileProjectAsync(
   heftConfiguration: HeftConfiguration,
-  pluginOptions: ISwcIsolatedTranspileOptions,
+  pluginOptions: SwcIsolatedTranspilePluginOptions,
   logger: IScopedLogger,
   { hooks: { getSwcOptions: getSwcOptionsHook } }: ISwcIsolatedTranspilePluginAccessor,
   getWatchFs?: (() => IWatchFileSystem) | undefined
