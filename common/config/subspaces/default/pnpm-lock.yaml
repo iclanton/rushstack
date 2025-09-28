@@ -4099,6 +4099,9 @@ importers:
       '@rushstack/heft':
         specifier: 0.74.3
         version: 0.74.3(@types/node@20.17.19)
+      '@rushstack/heft-json-schema-typings-plugin':
+        specifier: 0.1.5
+        version: 0.1.5(@rushstack/heft@0.74.3)(@types/node@20.17.19)
       '@rushstack/heft-node-rig':
         specifier: 2.9.4
         version: 2.9.4(@rushstack/heft@0.74.3)(@types/node@20.17.19)
@@ -11523,6 +11526,19 @@ packages:
       - ts-node
     dev: false
 
+  /@rushstack/heft-json-schema-typings-plugin@0.1.5(@rushstack/heft@0.74.3)(@types/node@20.17.19):
+    resolution: {integrity: sha512-6nlwdVh3LifrFIAXc296EokTh5Rh3FoQjYxogxV9Jb8t7GaGmAXG+MqrWMfYjhKEfZLMOmlKJ8nUIderWAk/Lg==}
+    peerDependencies:
+      '@rushstack/heft': '*'
+    dependencies:
+      '@rushstack/heft': 0.74.3(@types/node@20.17.19)
+      '@rushstack/node-core-library': 5.14.0(@types/node@20.17.19)
+      '@rushstack/typings-generator': 0.14.45(@types/node@20.17.19)
+      json-schema-to-typescript: 15.0.4
+    transitivePeerDependencies:
+      - '@types/node'
+    dev: false
+
   /@rushstack/heft-lint-plugin@0.7.4(@rushstack/heft@0.74.3)(@types/node@20.17.19):
     resolution: {integrity: sha512-6skj+5CkWWwD7hvqLCk8qbWDEGVh12y7u9BpU3JfaZbBKUlPpm2j6Ryf7d+N26OfXN65Fi/m2Q6CqVbOKtm3Rg==}
     peerDependencies:
@@ -11677,6 +11693,19 @@ packages:
       '@types/node': 20.17.19
       supports-color: 8.1.1
 
+  /@rushstack/terminal@0.16.0(@types/node@20.17.19):
+    resolution: {integrity: sha512-WEvNuKkoR1PXorr9SxO0dqFdSp1BA+xzDrIm/Bwlc5YHg2FFg6oS+uCTYjerOhFuqCW+A3vKBm6EmKWSHfgx/A==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+    dependencies:
+      '@rushstack/node-core-library': 5.14.0(@types/node@20.17.19)
+      '@types/node': 20.17.19
+      supports-color: 8.1.1
+    dev: false
+
   /@rushstack/tree-pattern@0.3.4:
     resolution: {integrity: sha512-9uROnkiHWsQqxW6HirXABfTRlgzhYp6tevbYIGkwKQ09VaayUBkvFvt/urDKMwlo+tGU0iQQLuVige6c48wTgw==}
 
@@ -11689,6 +11718,21 @@ packages:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
+
+  /@rushstack/typings-generator@0.14.45(@types/node@20.17.19):
+    resolution: {integrity: sha512-exbgNN0jBkpIZ6abkF4ZzstexOoakfqpsUmxmYa7TZhzMJaFwdCGn4Owb25vTXIfEqv+c/hyZw1lbsOGuYdIJw==}
+    peerDependencies:
+      '@types/node': '*'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+    dependencies:
+      '@rushstack/node-core-library': 5.14.0(@types/node@20.17.19)
+      '@rushstack/terminal': 0.16.0(@types/node@20.17.19)
+      '@types/node': 20.17.19
+      chokidar: 3.6.0
+      fast-glob: 3.3.2
+    dev: false
 
   /@rushstack/webpack-plugin-utilities@0.3.16(@types/webpack@4.41.32)(webpack@4.47.0):
     resolution: {integrity: sha512-0Xb0GESYEyv6Q7hzANZ8RIWa3seiJiCKBNNG83znQwMZ9l0bfnoJzZ3cYODkofoK0E8/nr4hTsn/pWKommf6Mw==}
