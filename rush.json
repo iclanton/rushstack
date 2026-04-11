@@ -1220,6 +1220,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@rushstack/file-templates",
+      "projectFolder": "libraries/file-templates",
+      "reviewCategory": "libraries",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@rushstack/package-extractor",
       "projectFolder": "libraries/package-extractor",
       "reviewCategory": "libraries",

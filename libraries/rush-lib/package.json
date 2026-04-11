@@ -43,6 +43,7 @@
   "dependencies": {
     "@pnpm/link-bins": "~5.3.7",
     "@rushstack/credential-cache": "workspace:*",
+    "@rushstack/file-templates": "workspace:*",
     "@rushstack/heft-config-file": "workspace:*",
     "@rushstack/lookup-by-path": "workspace:*",
     "@rushstack/node-core-library": "workspace:*",

@@ -179,6 +179,10 @@
       "allowedCategories": [ "libraries" ]
     },
     {
+      "name": "@rushstack/file-templates",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@rushstack/hashed-folder-copy-plugin",
       "allowedCategories": [ "tests" ]
     },
@@ -196,10 +200,6 @@
     },
     {
       "name": "@rushstack/heft-dev-cert-plugin",
-      "allowedCategories": [ "libraries", "tests" ]
-    },
-    {
-      "name": "@rushstack/heft-static-asset-typings-plugin",
       "allowedCategories": [ "libraries", "tests" ]
     },
     {
@@ -241,6 +241,10 @@
     {
       "name": "@rushstack/heft-serverless-stack-plugin",
       "allowedCategories": [ "tests" ]
+    },
+    {
+      "name": "@rushstack/heft-static-asset-typings-plugin",
+      "allowedCategories": [ "libraries", "tests" ]
     },
     {
       "name": "@rushstack/heft-storybook-plugin",
