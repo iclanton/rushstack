@@ -64,6 +64,8 @@ describe('HttpBuildCacheProvider', () => {
       .spyOn(FileSystem, 'createWriteStreamAsync')
       .mockResolvedValue({} as unknown as Awaited<ReturnType<typeof FileSystem.createWriteStreamAsync>>);
     jest.spyOn(FileSystem, 'ensureFolderAsync').mockResolvedValue();
+    // Ensure ambient environment variables cannot override the `isCacheWriteAllowed` option under test.
+    jest.spyOn(EnvironmentConfiguration, 'buildCacheWriteAllowed', 'get').mockReturnValue(undefined);
   });
 
   afterEach(() => {
