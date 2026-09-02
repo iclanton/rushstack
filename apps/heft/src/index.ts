@@ -42,6 +42,7 @@ export type {
   IHeftTaskSession,
   IHeftTaskHooks,
   IHeftTaskFileOperations,
+  IHeftTaskShutdownHookOptions,
   IHeftTaskRunHookOptions,
   IHeftTaskRunIncrementalHookOptions
 } from './pluginFramework/HeftTaskSession';

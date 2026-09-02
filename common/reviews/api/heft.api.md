@@ -279,6 +279,7 @@ export interface IHeftTaskHooks {
     readonly registerFileOperations: AsyncSeriesWaterfallHook<IHeftTaskFileOperations>;
     readonly run: AsyncParallelHook<IHeftTaskRunHookOptions>;
     readonly runIncremental: AsyncParallelHook<IHeftTaskRunIncrementalHookOptions>;
+    readonly shutdown: AsyncParallelHook<IHeftTaskShutdownHookOptions>;
 }
 
 // @public
@@ -316,6 +317,11 @@ export interface IHeftTaskSession {
     requestAccessToPluginByName<T extends object>(pluginToAccessPackage: string, pluginToAccessName: string, pluginApply: (pluginAccessor: T) => void): void;
     readonly taskName: string;
     readonly tempFolderPath: string;
+}
+
+// @public
+export interface IHeftTaskShutdownHookOptions {
+    readonly abortSignal: AbortSignal;
 }
 
 // @public (undocumented)

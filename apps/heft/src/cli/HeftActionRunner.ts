@@ -42,6 +42,8 @@ import type { HeftLifecycle } from '../pluginFramework/HeftLifecycle';
 import type { IHeftTask, HeftTask } from '../pluginFramework/HeftTask';
 import { deleteFilesAsync, type IDeleteOperation } from '../plugins/DeleteFilesPlugin';
 import { Constants } from '../utilities/Constants';
+import type { HeftPhaseSession } from '../pluginFramework/HeftPhaseSession';
+import type { HeftTaskSession } from '../pluginFramework/HeftTaskSession';
 
 export interface IHeftActionRunnerOptions extends IHeftActionOptions {
   action: IHeftAction;
@@ -205,6 +207,7 @@ export class HeftActionRunner {
   private readonly _heftConfiguration: HeftConfiguration;
   private _parameterManager: HeftParameterManager | undefined;
   private readonly _parallelism: number;
+  private _shutdownHooksInvoked: boolean = false;
 
   public constructor(options: IHeftActionRunnerOptions) {
     const { action, internalHeftSession, heftConfiguration, loggingManager, terminal, metricsCollector } =
@@ -338,6 +341,10 @@ export class HeftActionRunner {
         await this._executeOnceAsync(executionManager, cliAbortSignal);
       }
     } finally {
+      if (cliAbortSignal.aborted) {
+        await this._invokeTaskShutdownHooksAsync(cliAbortSignal);
+      }
+
       // Invoke this here both to ensure it always runs and that it does so after recordMetrics
       // This is treated as a finalizer for any assets created in lifecycle plugins.
       // It is the responsibility of the lifecycle plugin to ensure that finish gracefully handles
@@ -503,6 +510,24 @@ export class HeftActionRunner {
     }
 
     return new Set(operations.values());
+  }
+
+  private async _invokeTaskShutdownHooksAsync(abortSignal: AbortSignal): Promise<void> {
+    if (this._shutdownHooksInvoked) {
+      return;
+    }
+
+    this._shutdownHooksInvoked = true;
+
+    for (const phase of this._action.selectedPhases) {
+      const phaseSession: HeftPhaseSession = this._internalHeftSession.getSessionForPhase(phase);
+      for (const task of phase.tasks) {
+        const taskSession: HeftTaskSession = phaseSession.getSessionForTask(task);
+        if (taskSession.hooks.shutdown.isUsed()) {
+          await taskSession.hooks.shutdown.promise({ abortSignal });
+        }
+      }
+    }
   }
 }
 

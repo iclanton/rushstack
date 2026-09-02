@@ -694,6 +694,94 @@ export interface ISubprocessOptions {
 }
 
 // @public
+export interface IVirtualFileSystemCpOptions {
+    // (undocumented)
+    errorOnExist?: boolean;
+    // (undocumented)
+    force?: boolean;
+    // (undocumented)
+    recursive?: boolean;
+}
+
+// @public
+export interface IVirtualFileSystemMkdirOptions {
+    mode?: number | string;
+    // (undocumented)
+    recursive?: boolean;
+}
+
+// @public
+export interface IVirtualFileSystemPromises {
+    // (undocumented)
+    access(filePath: VirtualPathLike): Promise<void>;
+    // (undocumented)
+    appendFile(filePath: VirtualPathLike, data: VirtualFileContent, options?: IVirtualFileSystemWriteFileOptions | BufferEncoding | null): Promise<void>;
+    // (undocumented)
+    copyFile(srcPath: VirtualPathLike, destPath: VirtualPathLike): Promise<void>;
+    // (undocumented)
+    cp(srcPath: VirtualPathLike, destPath: VirtualPathLike, options?: IVirtualFileSystemCpOptions): Promise<void>;
+    // (undocumented)
+    lstat(filePath: VirtualPathLike): Promise<VirtualFileSystemStats>;
+    // (undocumented)
+    mkdir(folderPath: VirtualPathLike, options?: IVirtualFileSystemMkdirOptions | boolean): Promise<string | undefined>;
+    // (undocumented)
+    mkdtemp(prefix: string): Promise<string>;
+    // (undocumented)
+    readdir(folderPath: VirtualPathLike, options?: IVirtualFileSystemReaddirOptions | BufferEncoding | null): Promise<string[] | VirtualFileSystemDirent[]>;
+    // (undocumented)
+    readFile(filePath: VirtualPathLike, options?: IVirtualFileSystemReadFileOptions | BufferEncoding | null): Promise<string | Buffer>;
+    // (undocumented)
+    realpath(filePath: VirtualPathLike): Promise<string>;
+    // (undocumented)
+    rename(oldPath: VirtualPathLike, newPath: VirtualPathLike): Promise<void>;
+    // (undocumented)
+    rm(targetPath: VirtualPathLike, options?: IVirtualFileSystemRmOptions): Promise<void>;
+    // (undocumented)
+    rmdir(folderPath: VirtualPathLike, options?: IVirtualFileSystemRmOptions): Promise<void>;
+    // (undocumented)
+    stat(filePath: VirtualPathLike): Promise<VirtualFileSystemStats>;
+    // (undocumented)
+    truncate(filePath: VirtualPathLike, length?: number): Promise<void>;
+    // (undocumented)
+    unlink(filePath: VirtualPathLike): Promise<void>;
+    // (undocumented)
+    utimes(filePath: VirtualPathLike, atime: Date | number, mtime: Date | number): Promise<void>;
+    // (undocumented)
+    writeFile(filePath: VirtualPathLike, data: VirtualFileContent, options?: IVirtualFileSystemWriteFileOptions | BufferEncoding | null): Promise<void>;
+}
+
+// @public
+export interface IVirtualFileSystemReaddirOptions {
+    // (undocumented)
+    encoding?: BufferEncoding | null;
+    // (undocumented)
+    withFileTypes?: boolean;
+}
+
+// @public
+export interface IVirtualFileSystemReadFileOptions {
+    // (undocumented)
+    encoding?: BufferEncoding | null;
+    // (undocumented)
+    flag?: string;
+}
+
+// @public
+export interface IVirtualFileSystemRmOptions {
+    // (undocumented)
+    force?: boolean;
+    // (undocumented)
+    recursive?: boolean;
+}
+
+// @public
+export interface IVirtualFileSystemWriteFileOptions {
+    // (undocumented)
+    encoding?: BufferEncoding | null;
+    flag?: string;
+}
+
+// @public
 export interface IWaitForExitOptions {
     encoding?: BufferEncoding | 'buffer';
     throwOnNonZeroExitCode?: boolean;
@@ -991,5 +1079,213 @@ declare namespace User {
     }
 }
 export { User }
+
+// @public
+export type VirtualFileContent = string | NodeJS.ArrayBufferView;
+
+// @public
+export class VirtualFileSystem {
+    constructor();
+    // (undocumented)
+    access(filePath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    access(filePath: VirtualPathLike, mode: number, callback: GenericCallback): void;
+    // (undocumented)
+    accessSync(filePath: VirtualPathLike): void;
+    // (undocumented)
+    appendFile(filePath: VirtualPathLike, data: VirtualFileContent, options: IVirtualFileSystemWriteFileOptions | BufferEncoding | null, callback: WriteFileCallback): void;
+    // (undocumented)
+    appendFile(filePath: VirtualPathLike, data: VirtualFileContent, callback: WriteFileCallback): void;
+    // (undocumented)
+    appendFileSync(filePath: VirtualPathLike, data: VirtualFileContent, options?: IVirtualFileSystemWriteFileOptions | BufferEncoding | null): void;
+    // (undocumented)
+    copyFile(srcPath: VirtualPathLike, destPath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    copyFile(srcPath: VirtualPathLike, destPath: VirtualPathLike, mode: number, callback: GenericCallback): void;
+    // (undocumented)
+    copyFileSync(srcPath: VirtualPathLike, destPath: VirtualPathLike): void;
+    // (undocumented)
+    cp(srcPath: VirtualPathLike, destPath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    cp(srcPath: VirtualPathLike, destPath: VirtualPathLike, options: IVirtualFileSystemCpOptions, callback: GenericCallback): void;
+    // (undocumented)
+    cpSync(srcPath: VirtualPathLike, destPath: VirtualPathLike, options?: IVirtualFileSystemCpOptions): void;
+    // (undocumented)
+    readonly dirname: (p: string) => string;
+    // (undocumented)
+    exists(filePath: VirtualPathLike, callback: (exists: boolean) => void): void;
+    // (undocumented)
+    existsSync(filePath: VirtualPathLike): boolean;
+    // (undocumented)
+    readonly join: (path1: string, path2: string) => string;
+    // (undocumented)
+    lstat(filePath: VirtualPathLike, callback: StatCallback): void;
+    // (undocumented)
+    lstat(filePath: VirtualPathLike, options: object, callback: StatCallback): void;
+    // (undocumented)
+    lstatSync(filePath: VirtualPathLike): VirtualFileSystemStats;
+    // Warning: (ae-forgotten-export) The symbol "MkdirCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    mkdir(folderPath: VirtualPathLike, callback: MkdirCallback): void;
+    // (undocumented)
+    mkdir(folderPath: VirtualPathLike, options: IVirtualFileSystemMkdirOptions | boolean, callback: MkdirCallback): void;
+    // (undocumented)
+    mkdirSync(folderPath: VirtualPathLike, options?: IVirtualFileSystemMkdirOptions | boolean): string | undefined;
+    // Warning: (ae-forgotten-export) The symbol "MkdtempCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    mkdtemp(prefix: string, callback: MkdtempCallback): void;
+    // (undocumented)
+    mkdtempSync(prefix: string): string;
+    // (undocumented)
+    get promises(): IVirtualFileSystemPromises;
+    // Warning: (ae-forgotten-export) The symbol "ReaddirCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readdir(folderPath: VirtualPathLike, callback: ReaddirCallback): void;
+    // (undocumented)
+    readdir(folderPath: VirtualPathLike, options: IVirtualFileSystemReaddirOptions | BufferEncoding | null, callback: ReaddirCallback): void;
+    // (undocumented)
+    readdirSync(folderPath: VirtualPathLike): string[];
+    // (undocumented)
+    readdirSync(folderPath: VirtualPathLike, options: {
+        withFileTypes: true;
+        encoding?: BufferEncoding | null;
+    }): VirtualFileSystemDirent[];
+    // (undocumented)
+    readdirSync(folderPath: VirtualPathLike, options?: IVirtualFileSystemReaddirOptions | BufferEncoding | null): string[] | VirtualFileSystemDirent[];
+    // Warning: (ae-forgotten-export) The symbol "ReadFileCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readFile(filePath: VirtualPathLike, options: IVirtualFileSystemReadFileOptions | BufferEncoding | null, callback: ReadFileCallback): void;
+    // (undocumented)
+    readFile(filePath: VirtualPathLike, callback: ReadFileCallback): void;
+    // (undocumented)
+    readFileSync(filePath: VirtualPathLike): Buffer;
+    // (undocumented)
+    readFileSync(filePath: VirtualPathLike, options: {
+        encoding: BufferEncoding;
+        flag?: string;
+    } | BufferEncoding): string;
+    // (undocumented)
+    readFileSync(filePath: VirtualPathLike, options?: IVirtualFileSystemReadFileOptions | BufferEncoding | null): string | Buffer;
+    // Warning: (ae-forgotten-export) The symbol "RealpathCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    realpath(filePath: VirtualPathLike, callback: RealpathCallback): void;
+    // (undocumented)
+    realpathSync(filePath: VirtualPathLike): string;
+    // (undocumented)
+    readonly relative: (from: string, to: string) => string;
+    // (undocumented)
+    rename(oldPath: VirtualPathLike, newPath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    renameSync(oldPath: VirtualPathLike, newPath: VirtualPathLike): void;
+    // (undocumented)
+    rm(targetPath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    rm(targetPath: VirtualPathLike, options: IVirtualFileSystemRmOptions, callback: GenericCallback): void;
+    // (undocumented)
+    rmdir(folderPath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    rmdir(folderPath: VirtualPathLike, options: IVirtualFileSystemRmOptions, callback: GenericCallback): void;
+    // (undocumented)
+    rmdirSync(folderPath: VirtualPathLike, options?: IVirtualFileSystemRmOptions): void;
+    // (undocumented)
+    rmSync(targetPath: VirtualPathLike, options?: IVirtualFileSystemRmOptions): void;
+    // Warning: (ae-forgotten-export) The symbol "StatCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    stat(filePath: VirtualPathLike, callback: StatCallback): void;
+    // (undocumented)
+    stat(filePath: VirtualPathLike, options: object, callback: StatCallback): void;
+    // (undocumented)
+    statSync(filePath: VirtualPathLike): VirtualFileSystemStats;
+    toJSON(): {
+        [absolutePath: string]: string;
+    };
+    // (undocumented)
+    truncateSync(filePath: VirtualPathLike, length?: number): void;
+    // Warning: (ae-forgotten-export) The symbol "GenericCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    unlink(filePath: VirtualPathLike, callback: GenericCallback): void;
+    // (undocumented)
+    unlinkSync(filePath: VirtualPathLike): void;
+    // (undocumented)
+    utimesSync(filePath: VirtualPathLike, atime: Date | number, mtime: Date | number): void;
+    // Warning: (ae-forgotten-export) The symbol "WriteFileCallback" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    writeFile(filePath: VirtualPathLike, data: VirtualFileContent, options: IVirtualFileSystemWriteFileOptions | BufferEncoding | null, callback: WriteFileCallback): void;
+    // (undocumented)
+    writeFile(filePath: VirtualPathLike, data: VirtualFileContent, callback: WriteFileCallback): void;
+    // (undocumented)
+    writeFileSync(filePath: VirtualPathLike, data: VirtualFileContent, options?: IVirtualFileSystemWriteFileOptions | BufferEncoding | null): void;
+}
+
+// @public
+export class VirtualFileSystemDirent {
+    // @internal
+    constructor(name: string, isFile: boolean);
+    // (undocumented)
+    isBlockDevice(): boolean;
+    // (undocumented)
+    isCharacterDevice(): boolean;
+    // (undocumented)
+    isDirectory(): boolean;
+    // (undocumented)
+    isFIFO(): boolean;
+    // (undocumented)
+    isFile(): boolean;
+    // (undocumented)
+    isSocket(): boolean;
+    // (undocumented)
+    isSymbolicLink(): boolean;
+    // (undocumented)
+    readonly name: string;
+}
+
+// @public
+export class VirtualFileSystemStats {
+    // @internal
+    constructor(isFile: boolean, size: number, mtime: Date);
+    // (undocumented)
+    readonly atime: Date;
+    // (undocumented)
+    readonly atimeMs: number;
+    // (undocumented)
+    readonly birthtime: Date;
+    // (undocumented)
+    readonly birthtimeMs: number;
+    // (undocumented)
+    readonly ctime: Date;
+    // (undocumented)
+    readonly ctimeMs: number;
+    // (undocumented)
+    isBlockDevice(): boolean;
+    // (undocumented)
+    isCharacterDevice(): boolean;
+    // (undocumented)
+    isDirectory(): boolean;
+    // (undocumented)
+    isFIFO(): boolean;
+    // (undocumented)
+    isFile(): boolean;
+    // (undocumented)
+    isSocket(): boolean;
+    // (undocumented)
+    isSymbolicLink(): boolean;
+    // (undocumented)
+    readonly mtime: Date;
+    // (undocumented)
+    readonly mtimeMs: number;
+    // (undocumented)
+    readonly size: number;
+}
+
+// @public
+export type VirtualPathLike = string | Buffer | URL;
 
 ```

@@ -166,3 +166,18 @@ export { Encoding, Text, NewlineKind, type IReadLinesFromIterableOptions } from 
 export { TypeUuid } from './TypeUuid';
 
 export { User } from './User';
+
+export {
+  VirtualFileSystem,
+  VirtualFileSystemDirent,
+  VirtualFileSystemStats,
+  type IVirtualFileSystemCpOptions,
+  type IVirtualFileSystemMkdirOptions,
+  type IVirtualFileSystemPromises,
+  type IVirtualFileSystemReaddirOptions,
+  type IVirtualFileSystemReadFileOptions,
+  type IVirtualFileSystemRmOptions,
+  type IVirtualFileSystemWriteFileOptions,
+  type VirtualFileContent,
+  type VirtualPathLike
+} from './VirtualFileSystem';

@@ -155,6 +155,25 @@ export interface IHeftTaskHooks {
    * dynamic file copy or deletion operations.
    */
   readonly registerFileOperations: AsyncSeriesWaterfallHook<IHeftTaskFileOperations>;
+
+  /**
+   * The `shutdown` hook is called when Heft is shutting down due to CLI cancellation
+   * (for example, when the user presses Ctrl+C). This hook is invoked at most once
+   * per Heft invocation and is not called for normal incremental reruns.
+   */
+  readonly shutdown: AsyncParallelHook<IHeftTaskShutdownHookOptions>;
+}
+
+/**
+ * Options provided to the `shutdown` hook.
+ *
+ * @public
+ */
+export interface IHeftTaskShutdownHookOptions {
+  /**
+   * An abort signal representing cancellation of the overall Heft CLI invocation.
+   */
+  readonly abortSignal: AbortSignal;
 }
 
 /**
@@ -284,7 +303,8 @@ export class HeftTaskSession implements IHeftTaskSession {
     this.hooks = {
       run: new AsyncParallelHook(['runHookOptions']),
       runIncremental: new AsyncParallelHook(['runIncrementalHookOptions']),
-      registerFileOperations: new AsyncSeriesWaterfallHook(['fileOperations'])
+      registerFileOperations: new AsyncSeriesWaterfallHook(['fileOperations']),
+      shutdown: new AsyncParallelHook(['shutdownHookOptions'])
     };
 
     // Guaranteed to be unique since phases are uniquely named, tasks are uniquely named within
