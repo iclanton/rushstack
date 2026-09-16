@@ -128,41 +128,44 @@ extends:
                   rush_run_id="$(resources.pipeline.esrpPublishRush.runID)"
 
                   if [[ "$triggering_alias" == "esrpPublishRushstack" ]]; then
+                    pipeline_alias="esrpPublishRushstack"
                     pipeline_id="$rushstack_pipeline_id"
                     run_id="$rushstack_run_id"
                   elif [[ "$triggering_alias" == "esrpPublishRush" ]]; then
+                    pipeline_alias="esrpPublishRush"
                     pipeline_id="$rush_pipeline_id"
                     run_id="$rush_run_id"
                   # If this pipeline was not resource-triggered, use whichever publishing pipeline ran latest.
                   elif (( rushstack_run_id > rush_run_id )); then
+                    pipeline_alias="esrpPublishRushstack"
                     pipeline_id="$rushstack_pipeline_id"
                     run_id="$rushstack_run_id"
                   else
+                    pipeline_alias="esrpPublishRush"
                     pipeline_id="$rush_pipeline_id"
                     run_id="$rush_run_id"
                   fi
 
-                  echo "Using publishing pipeline $pipeline_id, run $run_id (trigger: ${triggering_alias:-manual})"
-                  echo "##vso[task.setvariable variable=PublishingPipelineId]$pipeline_id"
-                  echo "##vso[task.setvariable variable=PublishingRunId]$run_id"
+                  echo "Using publishing pipeline $pipeline_alias ($pipeline_id), run $run_id (trigger: ${triggering_alias:-manual})"
+                  echo "##vso[task.setvariable variable=PublishingPipelineAlias]$pipeline_alias"
                 displayName: 'Select publishing pipeline run'
 
-              - task: DownloadPipelineArtifact@2
-                displayName: 'Download published package versions'
-                inputs:
-                  source: specific
-                  project: GitHubProjectsPublish
-                  pipeline: $(PublishingPipelineId)
-                  runVersion: specific
-                  runId: $(PublishingRunId)
-                  artifact: published-versions
-                  path: $(Pipeline.Workspace)/published-versions
+              # Download through the declared resource so Azure Pipelines uses its authorized cross-project run.
+              - download: esrpPublishRushstack
+                artifact: published-versions
+                displayName: 'Download published package versions (Rush Stack)'
+                condition: and(succeeded(), eq(variables['PublishingPipelineAlias'], 'esrpPublishRushstack'))
+
+              - download: esrpPublishRush
+                artifact: published-versions
+                displayName: 'Download published package versions (Rush)'
+                condition: and(succeeded(), eq(variables['PublishingPipelineAlias'], 'esrpPublishRush'))
 
               - template: /common/config/azure-pipelines/templates/run-repo-toolbox.yaml@self
                 parameters:
                   Arguments: >
                     bump-decoupled-local-dependencies
-                    --published-versions-path "$(Pipeline.Workspace)/published-versions/published-versions.json"
+                    --published-versions-path "$(Pipeline.Workspace)/$(PublishingPipelineAlias)/published-versions/published-versions.json"
                   DisplayName: 'Bump decoupled local dependencies'
 
               # If Rush itself was updated by bump-decoupled-local-dependencies, we need to bootstrap
